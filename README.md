@@ -8,6 +8,10 @@ newborn's multi language book
 
 Moved to [settings](http://cookiecutter-django.readthedocs.io/en/latest/settings.html).
 
+## redis
+
+windows可以使用 https://github.com/zkteco-home/redis-windows 直接启动redis.
+
 ## Basic Commands
 
 ### Setting Up Your Users
