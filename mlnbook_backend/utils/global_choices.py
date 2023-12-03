@@ -40,34 +40,35 @@ LANGUAGE_LEVEL = (
 
 PHASE_LEVEL = (
     ("preschool", "学前班"),  # 体验式教育，游戏和保育为主
-    ("Kindergarten", "幼儿园"),  # 课本教育，小学知识预输入；一般持续1年。
-    ("elementary_school", "小学"),
-    ("middle_school", "中学"),
-    ("high_school", "高中"),
+    ("kindergarten", "幼儿园"),  # 课本教育，小学知识预输入；一般持续1年。
+    ("primary", "小学"),
+    ("middle", "初中"),
+    ("high", "高中"),
     ("university", "大学"),
 )
 
 GRADE_LEVEL = (
-    ("preschool", "学前班"),  # 体验式教育，游戏和保育为主
-    ("Kindergarten", "幼儿园"),  # 课本教育，小学知识预输入；一般持续1年。
-    ("Grade1", "小学一年级"),
-    ("Grade2", "小学二年级"),
-    ("Grade3", "小学三年级"),
-    ("Grade4", "小学四年级"),
-    ("Grade5", "小学五年级"),
-    ("Grade6", "小学六年级"),  # 部分地区无六年级
-    ("Grade7", "初中一年级"),
-    ("Grade8", "初中二年级"),
-    ("Grade9", "初中三年级"),
-    ("Grade10", "高中一年级"),
-    ("Grade11", "高中二年级"),
-    ("Grade12", "高中三年级"),
+    ("0t1-preschool", "学前1岁前"),
+    ("1t2-preschool", "学前1-2岁"),
+    ("2t3-preschool", "学前2-3岁"),
+    ("3t4-preschool", "学前3-4岁"),
+    ("4t5-preschool", "学前4-5岁"),
+    ("kindergarten", "幼儿园"),  # 课本教育，小学知识预输入；一般持续1-2年。
+    ("grade1-primary", "小学一年级"),
+    ("grade2-primary", "小学二年级"),
+    ("grade3-primary", "小学三年级"),
+    ("grade4-primary", "小学四年级"),
+    ("grade5-primary", "小学五年级"),
+    ("grade6-primary", "小学六年级"),  # 部分地区无六年级
+    ("grade7-middle", "初中一年级"),
+    ("grade8-middle", "初中二年级"),
+    ("grade9-middle", "初中三年级"),
+    ("grade10-high", "高中一年级"),
+    ("grade11-high", "高中二年级"),
+    ("grade12-high", "高中三年级"),
+    ("freshman-university", "大学一年级"),
+    ("sophomore-university", "大学二年级"),
+    ("junior-university", "大学三年级"),
+    ("senior-university", "大学四年级"),
 )
 
-PRESCHOOL_YEARS = (
-    ("3mm-12mm", "3-12months"),
-    ("12mm-18mm", "12-18months"),
-    ("18mm-2yy", "18months-2years"),
-    ("2yy-3yy", "2-3years"),
-    ("3yy-5yy", "3-5years"),
-)
