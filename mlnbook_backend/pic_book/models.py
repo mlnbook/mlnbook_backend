@@ -32,6 +32,7 @@ class PicBook(models.Model):
 
 class BookSeries(models.Model):
     title = models.CharField("标题", max_length=500)
+    description = models.CharField("描述信息", max_length=1000, null=True, blank=True)
     language = models.CharField("语言", max_length=16, default="en_US", choices=LANGUAGE_CODE_CHOICES)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     pic_books = models.ManyToManyField(PicBook)
@@ -48,9 +49,9 @@ class BookSeries(models.Model):
 
 class VoiceTemplate(models.Model):
     title = models.CharField("标题", max_length=500)
-    language = models.CharField()
-    speaker = models.CharField()
-    tts_model = models.CharField()
+    language = models.CharField("语言", max_length=16, default="en_US", choices=LANGUAGE_CODE_CHOICES)
+    speaker = models.CharField("语音文件", max_length=50, blank=True)
+    tts_model = models.CharField("使用tts模型", max_length=20, default="coqui-xld1")
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_created=True)
     utime = models.DateTimeField(auto_now=True)
@@ -69,8 +70,8 @@ class ChapterTemplate(models.Model):
                               help_text="public完全公开共享；protected内置受保护，仅平台可用；private私人创建，平台和其他人不可用")
     language = models.CharField("语言", max_length=16, default="en_US", choices=LANGUAGE_CODE_CHOICES)
     text_template = models.TextField("文案模板", blank=True)
-    # style_template = models.ForeignKey(StyleTemplate, on_delete=models.CASCADE)
-    grid_layout = models.CharField("栅格布局", max_length=200, help_text="单页面内图片，1*1, 2*2, 3*3布局")
+    # 风格样式； style_template = models.ForeignKey(StyleTemplate, on_delete=models.CASCADE)
+    grid_layout = models.CharField("栅格布局", max_length=200, help_text="单页面内图片，1*1, 2*2, 3*3, 2*4布局")
     font_color = models.CharField("颜色", max_length=500)
     font_family = models.CharField("颜色", max_length=500)
     font_size = models.CharField("颜色", max_length=500)
@@ -98,7 +99,6 @@ class KnowledgePoint(models.Model):
     language_level = models.CharField("语言级别", max_length=16, default="A1", choices=LANGUAGE_LEVEL)
     phase = models.CharField("学段", max_length=20, choices=PHASE_LEVEL, default="preschool")
     grade = models.CharField("年级", max_length=30, choices=GRADE_LEVEL, default="1t2-preschool")
-    preschool_year = models.CharField("学前学龄", max_length=16, blank=True, help_text="学前课程细分，非学前为空值")
     pic_file = models.ImageField("图片", upload_to="/images/keywords", null=True)
     pic_style = models.CharField("图片风格", default="realistic")
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
