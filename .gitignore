@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-=======
-### Python template
->>>>>>> master
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -24,17 +20,12 @@ parts/
 sdist/
 var/
 wheels/
-<<<<<<< HEAD
+
 share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 MANIFEST
-=======
-*.egg-info/
-.installed.cfg
-*.egg
->>>>>>> master
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -49,24 +40,14 @@ pip-delete-this-directory.txt
 # Unit test / coverage reports
 htmlcov/
 .tox/
-<<<<<<< HEAD
 .nox/
-=======
->>>>>>> master
 .coverage
 .coverage.*
 .cache
 nosetests.xml
 coverage.xml
 *.cover
-<<<<<<< HEAD
-*.py,cover
 .hypothesis/
-.pytest_cache/
-cover/
-=======
-.hypothesis/
->>>>>>> master
 
 # Translations
 *.mo
@@ -85,15 +66,12 @@ instance/
 
 # Scrapy stuff:
 .scrapy
-=======
 staticfiles/
->>>>>>> master
 
 # Sphinx documentation
 docs/_build/
 
 # PyBuilder
-<<<<<<< HEAD
 .pybuilder/
 target/
 
@@ -166,7 +144,6 @@ celerybeat-schedule
 .venv
 venv/
 ENV/
->>>>>>> master
 
 # Rope project settings
 .ropeproject
@@ -176,7 +153,6 @@ ENV/
 
 # mypy
 .mypy_cache/
-<<<<<<< HEAD
 .dmypy.json
 dmypy.json
 
@@ -194,9 +170,7 @@ cython_debug/
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
-#.idea/
-=======
-
+.idea/
 
 ### Node template
 # Logs
@@ -447,4 +421,4 @@ dump.rdb
 mlnbook_backend/media/
 
 .pytest_cache/
->>>>>>> master
+
