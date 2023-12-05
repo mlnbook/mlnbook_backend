@@ -48,11 +48,11 @@ PHASE_LEVEL = (
 )
 
 GRADE_LEVEL = (
-    ("0t1-preschool", "学前1岁前"),
-    ("1t2-preschool", "学前1-2岁"),
-    ("2t3-preschool", "学前2-3岁"),
-    ("3t4-preschool", "学前3-4岁"),
-    ("4t5-preschool", "学前4-5岁"),
+    ("age1-preschool", "学前1岁"),
+    ("age2-preschool", "学前2岁"),
+    ("age3-preschool", "学前3岁"),
+    ("age4-preschool", "学前4岁"),
+    ("age5-preschool", "学前5岁"),
     ("kindergarten", "幼儿园"),  # 课本教育，小学知识预输入；一般持续1-2年。
     ("grade1-primary", "小学一年级"),
     ("grade2-primary", "小学二年级"),
@@ -71,4 +71,3 @@ GRADE_LEVEL = (
     ("junior-university", "大学三年级"),
     ("senior-university", "大学四年级"),
 )
-
