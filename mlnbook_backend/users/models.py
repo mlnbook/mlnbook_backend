@@ -48,6 +48,30 @@ class Profile(models.Model):
         return self.user
 
 
+class Author(models.Model):
+    # 个人信息附加字段
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, help_text="入驻和内部组员，需要关联user")
+    name = models.CharField("姓名", max_length=100, blank=True)
+    description = models.TextField("介绍信息", null=True, blank=True)
+    language = models.CharField("母语", max_length=16, default='zh_CN', choices=LANGUAGE_CODE_CHOICES)
+    c_type = models.CharField("作者类型", max_length=16, default="staff",
+                              help_text="certification 入驻认证，staff 平台内部组员，public 历史公开公共资源")
+    ctime = models.DateTimeField(auto_created=True)
+    utime = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "mlnbook_user_authors"
+
+    def __str__(self):
+        return self.name
+
+    def author_name(self):
+        if self.user:
+            return self.user.username
+        else:
+            return self.name
+
+
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:

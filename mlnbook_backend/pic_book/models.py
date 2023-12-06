@@ -1,6 +1,7 @@
 # coding=utf-8
 from django.db import models
 from django.conf import settings
+from taggit.managers import TaggableManager
 
 from mlnbook_backend.utils.global_choices import LANGUAGE_CODE_CHOICES, LANGUAGE_LEVEL, PHASE_LEVEL, GRADE_LEVEL
 
@@ -16,6 +17,7 @@ class PicBook(models.Model):
     description = models.CharField("描述信息", max_length=1000, null=True, blank=True)
     language = models.CharField("语言", max_length=16, default="en_US", choices=LANGUAGE_CODE_CHOICES)
     language_level = models.CharField("语言级别", max_length=16, default="A1", choices=LANGUAGE_LEVEL)
+    tags = TaggableManager()
     phase = models.CharField("学段", max_length=20, choices=PHASE_LEVEL, default="preschool")
     grade = models.CharField("年级", max_length=30, choices=GRADE_LEVEL, default="age2-preschool")
     cover_img = models.ImageField("封面图", max_length=500, blank=True, null=True)
@@ -34,6 +36,7 @@ class BookSeries(models.Model):
     title = models.CharField("标题", max_length=500)
     description = models.CharField("描述信息", max_length=1000, null=True, blank=True)
     language = models.CharField("语言", max_length=16, default="en_US", choices=LANGUAGE_CODE_CHOICES)
+    tags = TaggableManager()
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     pic_books = models.ManyToManyField(PicBook)
     share_state = models.CharField("公开状态", max_length=16, default="public")
@@ -109,6 +112,7 @@ class KnowledgePoint(models.Model):
     knowledge = models.CharField("知识内容", max_length=500, help_text="单词或句子，作为段落的一个主题内容")
     language = models.CharField("语言", max_length=16, default="en_US", choices=LANGUAGE_CODE_CHOICES)
     language_level = models.CharField("语言级别", max_length=16, default="A1", choices=LANGUAGE_LEVEL)
+    tags = TaggableManager()
     phase = models.CharField("学段", max_length=20, choices=PHASE_LEVEL, default="preschool")
     grade = models.CharField("年级", max_length=30, choices=GRADE_LEVEL, default="1t2-preschool")
     illustration = models.ForeignKey(IllustrationFile, null=True, on_delete=models.CASCADE)
