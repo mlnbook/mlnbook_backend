@@ -1,9 +1,9 @@
 # coding=utf-8
 from django.db import models
-from django.conf import settings
 from taggit.managers import TaggableManager
 
 from mlnbook_backend.utils.global_choices import LANGUAGE_CODE_CHOICES, LANGUAGE_LEVEL, PHASE_LEVEL, GRADE_LEVEL
+from mlnbook_backend.users.models import Author
 
 CHAPTER_TYPE_CHOICES = (
     ("public", "完全公开"),
@@ -21,7 +21,7 @@ class PicBook(models.Model):
     phase = models.CharField("学段", max_length=20, choices=PHASE_LEVEL, default="preschool")
     grade = models.CharField("年级", max_length=30, choices=GRADE_LEVEL, default="age2-preschool")
     cover_img = models.ImageField("封面图", max_length=500, blank=True, null=True)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_created=True)
     utime = models.DateTimeField(auto_now=True)
 
@@ -37,7 +37,7 @@ class BookSeries(models.Model):
     description = models.CharField("描述信息", max_length=1000, null=True, blank=True)
     language = models.CharField("语言", max_length=16, default="en_US", choices=LANGUAGE_CODE_CHOICES)
     tags = TaggableManager()
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
     pic_books = models.ManyToManyField(PicBook)
     share_state = models.CharField("公开状态", max_length=16, default="public")
     ctime = models.DateTimeField(auto_created=True)
@@ -55,7 +55,7 @@ class VoiceTemplate(models.Model):
     language = models.CharField("语言", max_length=16, default="en_US", choices=LANGUAGE_CODE_CHOICES)
     speaker = models.CharField("语音文件", max_length=50, blank=True)
     tts_model = models.CharField("使用tts模型", max_length=20, default="coqui-xld1")
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_created=True)
     utime = models.DateTimeField(auto_now=True)
 
@@ -84,7 +84,7 @@ class ChapterTemplate(models.Model):
     text_opacity = models.FloatField("文本透明度", default=1, help_text="opacity为不透度度，1为完全显示，0为完全透明; 0.5为半透明 ")
     # voice
     voice_template = models.ForeignKey(VoiceTemplate, on_delete=models.CASCADE)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_created=True)
     utime = models.DateTimeField(auto_now=True)
 
@@ -118,7 +118,7 @@ class KnowledgePoint(models.Model):
     illustration = models.ForeignKey(IllustrationFile, null=True, on_delete=models.CASCADE)
     # voice_template = models.ForeignKey(VoiceTemplate, on_delete=models.CASCADE, null=True)
     pic_style = models.CharField("图片风格", default="realistic")
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_created=True)
     utime = models.DateTimeField(auto_now=True)
 
@@ -143,7 +143,7 @@ class Paragraph(models.Model):
     page_num = models.IntegerField("页码", default=1)
     page_para_seq = models.IntegerField("页内段落排序", default=1)
     # 单页模式，过滤pic_book，按照 page_num + page_para_seq 排序，一个个返回。
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_created=True)
     utime = models.DateTimeField(auto_now=True)
 
@@ -160,7 +160,7 @@ class ParagraphVoiceFile(models.Model):
     voice_template = models.ForeignKey(VoiceTemplate, on_delete=models.CASCADE)
     voice_file = models.FileField("语音文件", upload_to="pic_book/voice_file")
     duration = models.IntegerField("毫秒", default=1000)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_created=True)
     utime = models.DateTimeField(auto_now=True)
 
@@ -177,7 +177,7 @@ class KnowledgeVoiceFile(models.Model):
     voice_template = models.ForeignKey(VoiceTemplate, on_delete=models.CASCADE)
     voice_file = models.FileField("语音文件", upload_to="pic_book/voice_file")
     duration = models.IntegerField("毫秒", default=1000)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_created=True)
     utime = models.DateTimeField(auto_now=True)
 

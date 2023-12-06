@@ -49,7 +49,7 @@ class Profile(models.Model):
 
 
 class Author(models.Model):
-    # 个人信息附加字段
+    # B端作者和C段用户需要区分出来
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, help_text="入驻和内部组员，需要关联user")
     name = models.CharField("姓名", max_length=100, blank=True)
     description = models.TextField("介绍信息", null=True, blank=True)
