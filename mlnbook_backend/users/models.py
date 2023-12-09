@@ -37,7 +37,7 @@ class Profile(models.Model):
     # 个人信息附加字段
     nick_name = models.CharField("别名", max_length=50, blank=True)
     native_language = models.CharField("母语", max_length=16, default='zh_CN', choices=LANGUAGE_CODE_CHOICES)
-    learn_language = models.IntegerField("学习语言", max_length=16, default='en_US', choices=LANGUAGE_CODE_CHOICES)
+    learn_language = models.CharField("学习语言", max_length=16, default='en_US', choices=LANGUAGE_CODE_CHOICES)
     ctime = models.DateTimeField(auto_created=True)
     utime = models.DateTimeField(auto_now=True)
 

@@ -80,7 +80,7 @@ class ChapterTemplate(models.Model):
     font_size = models.CharField("文字大小", max_length=500)
     background_img = models.ImageField("背景图面", max_length=500)
     background_color = models.ImageField("背景颜色", max_length=500)
-    text_position = models.CharField("文本位置", default="bottom", help_text="文本框在图片中的位置：上中下左右？")
+    text_position = models.CharField("文本位置", max_length=20, default="bottom", help_text="文本框在图片中的位置：上中下左右？")
     text_opacity = models.FloatField("文本透明度", default=1, help_text="opacity为不透度度，1为完全显示，0为完全透明; 0.5为半透明 ")
     # voice
     voice_template = models.ForeignKey(VoiceTemplate, on_delete=models.CASCADE)
@@ -117,7 +117,7 @@ class KnowledgePoint(models.Model):
     grade = models.CharField("年级", max_length=30, choices=GRADE_LEVEL, default="1t2-preschool")
     illustration = models.ForeignKey(IllustrationFile, null=True, on_delete=models.CASCADE)
     # voice_template = models.ForeignKey(VoiceTemplate, on_delete=models.CASCADE, null=True)
-    pic_style = models.CharField("图片风格", default="realistic")
+    pic_style = models.CharField("图片风格", max_length=20, default="realistic")
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_created=True)
     utime = models.DateTimeField(auto_now=True)
@@ -182,8 +182,8 @@ class KnowledgeVoiceFile(models.Model):
     utime = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = "mlnbook_pic_book_paragraph_voice_file"
-        unique_together = ["para_content_uniq", "voice_template"]
+        db_table = "mlnbook_pic_book_knowledge_voice_file"
+        unique_together = ["knowledge_uniq", "voice_template"]
 
     def __str__(self):
         return self.voice_file.url

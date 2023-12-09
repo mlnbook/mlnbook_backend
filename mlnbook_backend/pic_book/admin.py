@@ -20,9 +20,9 @@ class BookSeriesAdmin(admin.ModelAdmin):
 
 @admin.register(ChapterTemplate)
 class ChapterTemplateAdmin(admin.ModelAdmin):
-    list_display = ["c_type", "title", "description", "language", "author", "text_template", "ctime"]
+    list_display = ["c_type", "title", "description", "author", "text_template", "ctime"]
     search_fields = ["title"]
-    list_filter = ["c_type", "language"]
+    list_filter = ["c_type", ]
 
 
 @admin.register(KnowledgePoint)
@@ -35,5 +35,5 @@ class KnowledgePointAdmin(admin.ModelAdmin):
 @admin.register(Paragraph)
 class ParagraphAdmin(admin.ModelAdmin):
     list_display = ["para_content_uniq", "pic_book", "chapter", "knowledge_point", "para_content",
-                    "chapter_seq", "para_seq", "author", "ctime"]
+                    "page_num", "page_para_seq", "author", "ctime"]
     search_fields = ["para_content"]

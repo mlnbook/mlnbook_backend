@@ -93,6 +93,7 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     "mlnbook_backend.users",
+    "mlnbook_backend.pic_book",
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
