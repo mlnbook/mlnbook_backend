@@ -37,7 +37,6 @@ class BookSeries(models.Model):
     description = models.CharField("描述信息", max_length=1000, null=True, blank=True)
     language = models.CharField("语言", max_length=16, default="en_US", choices=LANGUAGE_CODE_CHOICES)
     tags = TaggableManager()
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
     pic_books = models.ManyToManyField(PicBook)
     share_state = models.CharField("公开状态", max_length=16, default="public")
     ctime = models.DateTimeField(auto_created=True)
