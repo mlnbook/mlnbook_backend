@@ -16,5 +16,5 @@ app_name = "api"
 
 urlpatterns = [
     path('users/', include(router.urls)),
-    path('book_store/', include("mlnbook_backend.pic_book.urls")),
+    path('reading/', include("mlnbook_backend.pic_book.urls")),
 ]
