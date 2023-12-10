@@ -37,7 +37,7 @@ class ChapterTemplateSerializer(serializers.ModelSerializer):
 class KnowledgePointSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ["knowledge_uniq", "knowledge", "language", "language_level", "phase", "grade", "pic_style",
+        fields = ["id", "knowledge_uniq", "knowledge", "language", "language_level", "phase", "grade", "pic_style",
                   "author", "ctime", "utime"]
 
 

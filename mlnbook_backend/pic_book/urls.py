@@ -2,10 +2,12 @@
 from django.urls import path, include
 from rest_framework import routers
 
-from mlnbook_backend.pic_book.views import PicBookViewSet
+from mlnbook_backend.pic_book.views import PicBookViewSet, KnowledgePointViewSet, ChapterTemplateViewSet
 
 router = routers.DefaultRouter()
 router.register('pic_book', PicBookViewSet)
+router.register('knowledge', KnowledgePointViewSet)
+router.register('chapter', ChapterTemplateViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
