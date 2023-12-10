@@ -24,3 +24,25 @@ class BookSeriesCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = BookSeries
         fields = ['id', 'title', 'description', 'language', 'utime', 'pic_books']
+
+
+class ChapterTemplateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ["id", "title", "description", "c_type", "text_template", "grid_layout", "author",
+                  "font_color", "font_family", "font_size", "background_img", "background_color",
+                  "text_position", "text_opacity", "voice_template", "ctime", "utime"]
+
+
+class KnowledgePointSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ["knowledge_uniq", "knowledge", "language", "language_level", "phase", "grade", "pic_style",
+                  "author", "ctime", "utime"]
+
+
+class ParagraphSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = ["paragraph_uniq", "pic_book", "chapter", "knowledge_point", "para_content", "illustration",
+                  "page_num", "page_para_seq", "author", "utime"]
