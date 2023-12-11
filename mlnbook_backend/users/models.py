@@ -6,7 +6,7 @@ from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from mlnbook_backend.utils.global_choices import LANGUAGE_CODE_CHOICES
+from mlnbook_backend.utils.global_choices import LANGUAGE_CODE_CHOICES, PHASE_LEVEL
 
 
 class User(AbstractUser):
@@ -38,6 +38,9 @@ class Profile(models.Model):
     nick_name = models.CharField("别名", max_length=50, blank=True)
     native_language = models.CharField("母语", max_length=16, default='zh_CN', choices=LANGUAGE_CODE_CHOICES)
     learn_language = models.CharField("学习语言", max_length=16, default='en_US', choices=LANGUAGE_CODE_CHOICES)
+    phase = models.CharField("学段", max_length=20, choices=PHASE_LEVEL, default="preschool")
+    child_gender = models.CharField("孩子性别", max_length=16, default="M", help_text="M male, F female, U Unknown")
+    child_age = models.IntegerField("孩子年龄", default=2)
     ctime = models.DateTimeField(auto_created=True)
     utime = models.DateTimeField(auto_now=True)
 
