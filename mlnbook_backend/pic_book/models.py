@@ -26,6 +26,22 @@ BOOK_STATE_CHOICES = (
 )
 
 
+FLEX_JUSTIFY_OPTIONS = (
+    ('flex-start', 'flex-start'),
+    ('center', 'center'),
+    ('flex-end', 'flex-end'),
+    ('space-between', 'space-between'),
+    ('space-around', 'space-around'),
+    ('space-evenly', 'space-evenly'),
+)
+
+FLEX_ALIGN_OPTIONS = (
+    ('flex-start', 'flex-start'),
+    ('center', 'center'),
+    ('flex-end', 'flex-end'),
+)
+
+
 class PicBook(models.Model):
     title = models.CharField("标题", max_length=500)
     description = models.CharField("描述信息", max_length=1000, null=True, blank=True)
@@ -95,6 +111,23 @@ class VoiceTemplate(models.Model):
 
 
 class ChapterTemplate(models.Model):
+    """
+    ant design grid栅格；
+    1. 通过 row 在水平方向建立一组 column（简写 col）。
+    2. 你的内容应当放置于 col 内，并且，只有 col 可以作为 row 的直接元素。
+    3. 栅格系统中的列是指 1 到 24 的值来表示其跨越的范围。例如，三个等宽的列可以使用 <Col span={8} /> 来创建。
+    4. 如果一个 row 中的 col 总和超过 24，那么多余的 col 会作为一个整体另起一行排列。
+    5. 使用 Row 的 gutter 属性，我们推荐使用 (16+8n)px 作为栅格间隔(n 是自然数)。如果要支持响应式，可以写成 { xs: 8, sm: 16, md: 24, lg: 32 }
+
+    <Row gutter={[16, 24]}>
+      <Col span={12}>col-12</Col>
+      <Col span={12}>col-12</Col>
+    </Row>
+    <Row>
+      <Col span={12}>col-12</Col>
+      <Col span={12}>col-12</Col>
+    </Row>
+    """
     title = models.CharField("标题", max_length=500)
     description = models.CharField("描述信息", max_length=1000, null=True, blank=True)
     c_type = models.CharField("章节类型", max_length=16, default="protected", choices=CHAPTER_TYPE_CHOICES,
@@ -102,14 +135,19 @@ class ChapterTemplate(models.Model):
     # language = models.CharField("语言", max_length=16, default="en_US", choices=LANGUAGE_CODE_CHOICES)
     text_template = models.TextField("文案模板", blank=True)
     # 风格样式； style_template = models.ForeignKey(StyleTemplate, on_delete=models.CASCADE)
-    grid_layout = models.CharField("栅格布局", max_length=200, help_text="单页面内图片，1*1, 2*2, 3*3, 2*4布局")
-    font_color = models.CharField("颜色", max_length=500)
-    font_family = models.CharField("字体", max_length=500)
-    font_size = models.CharField("文字大小", max_length=500)
-    background_img = models.ImageField("背景图面", max_length=500)
-    background_color = models.ImageField("背景颜色", max_length=500)
-    text_position = models.CharField("文本位置", max_length=20, default="bottom",
-                                     help_text="文本框在图片中的位置：上中下左右？")
+    grid_layout = models.CharField("栅格布局", max_length=200, default="[[12,12], [12,12]]",
+                                   help_text="二维矩阵，；[[12,12], [12,12]] 布局")
+    grid_gutter = models.CharField("栅格间距", max_length=20, default="[16, 24]",
+                                   help_text="使用 (16+8n)px 作为栅格间隔(n 是自然数); [Horizontal水平, Vertical垂直]")
+    font_color = models.CharField("颜色", max_length=16, default="#0000E0")
+    font_family = models.CharField("字体", max_length=50, default="Arial")
+    font_size = models.SmallIntegerField("文字大小", default="14", help_text="14px")
+    background_img = models.ImageField("背景图面", max_length=500, null=True, blank=True)
+    background_color = models.ImageField("背景颜色", max_length=500, default="#FFFFFF")
+    text_flex_justify = models.CharField("文本主轴位置", max_length=20, default="flex-end", choices=FLEX_JUSTIFY_OPTIONS,
+                                         help_text="Flex弹性布局, 设置元素在主轴方向上的对齐方式")
+    text_flex_align = models.CharField("文本交叉轴位置", max_length=20, default="flex-end", choices=FLEX_ALIGN_OPTIONS,
+                                       help_text="Flex弹性布局, 设置元素在交叉轴方向上的对齐方式")
     text_opacity = models.FloatField("文本透明度", default=1,
                                      help_text="opacity为不透度度，1为完全显示，0为完全透明; 0.5为半透明 ")
     # voice
