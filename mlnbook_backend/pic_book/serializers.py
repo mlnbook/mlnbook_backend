@@ -1,7 +1,7 @@
 # coding=utf-8
 from rest_framework import serializers
 
-from mlnbook_backend.pic_book.models import PicBook, BookSeries
+from mlnbook_backend.pic_book.models import PicBook, BookSeries, KnowledgePoint, Paragraph, ChapterTemplate
 
 
 class PicBookSerializer(serializers.ModelSerializer):
@@ -29,20 +29,34 @@ class BookSeriesCreateSerializer(serializers.ModelSerializer):
 class ChapterTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ["id", "title", "description", "c_type", "text_template", "grid_layout", "author",
+        model = ChapterTemplate
+        fields = ["id", "title", "description", "c_type", "text_template", "grid_row_col", "grid_gutter", "user",
                   "font_color", "font_family", "font_size", "background_img", "background_color",
-                  "text_position", "text_opacity", "voice_template", "ctime", "utime"]
+                  "text_flex_justify", "text_flex_align", "text_opacity", "voice_template", "ctime", "utime"]
 
 
 class KnowledgePointSerializer(serializers.ModelSerializer):
 
     class Meta:
+        model = KnowledgePoint
         fields = ["id", "knowledge_uniq", "knowledge", "language", "language_level", "phase", "grade", "pic_style",
-                  "author", "ctime", "utime"]
+                  "user", "ctime", "utime"]
 
 
 class ParagraphSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ["paragraph_uniq", "pic_book", "chapter", "knowledge_point", "para_content", "illustration",
-                  "page_num", "page_para_seq", "author", "utime"]
+        model = Paragraph
+        fields = ["id", "paragraph_uniq", "pic_book", "chapter", "knowledge_point", "para_content", "illustration",
+                  "page_num", "page_para_seq", "user", "utime"]
+
+
+class PicBookCompleteSerializer(serializers.ModelSerializer):
+    pic_book = PicBookSerializer()
+    chapter = ChapterTemplateSerializer()
+    knowledge_point = KnowledgePointSerializer()
+
+    class Meta:
+        model = Paragraph
+        fields = ["id", "paragraph_uniq", "pic_book", "chapter", "knowledge_point", "para_content", "illustration",
+                  "page_num", "page_para_seq", "user", "utime"]
