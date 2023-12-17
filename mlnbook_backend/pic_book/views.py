@@ -1,7 +1,11 @@
 # coding=utf-8
 from rest_framework import viewsets
+from rest_framework.parsers import FileUploadParser
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from mlnbook_backend.pic_book.models import PicBook, KnowledgePoint, ChapterTemplate, Paragraph, BookSeries
+from mlnbook_backend.pic_book.models import PicBook, KnowledgePoint, ChapterTemplate, Paragraph, \
+    BookSeries, IllustrationFile
 from mlnbook_backend.pic_book.serializers import PicBookSerializer, KnowledgePointSerializer, \
     ChapterTemplateSerializer, ParagraphSerializer, BookSeriesListSerializer, BookSeriesCreateSerializer
 
@@ -35,3 +39,12 @@ class BookSeriesViewSet(viewsets.ModelViewSet):
             return BookSeriesListSerializer
         else:
             return BookSeriesCreateSerializer
+
+
+class IllustrationFileUploadView(APIView):
+    parser_classes = [FileUploadParser]
+
+    def put(self, request, filename, format=None):
+        pic_file = request.data['file']
+        IllustrationFile(pic_file=pic_file, user=request.user)
+        return Response(status=204)
