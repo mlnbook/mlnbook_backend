@@ -13,6 +13,21 @@ CHAPTER_TYPE_CHOICES = (
 )
 
 
+VOICE_STATE_CHOICES = (
+    ("done", "完成"),
+    ("prepare", "准备中"),
+    ("process", "处理中"),
+    ("error", "出错"),
+)
+
+
+BOOK_STATE_CHOICES = (
+    (1, "online"),
+    (-1, "offline"),
+    (0, "prepare"),
+)
+
+
 class PicBook(models.Model):
     title = models.CharField("标题", max_length=500)
     description = models.CharField("描述信息", max_length=1000, null=True, blank=True)
@@ -23,6 +38,8 @@ class PicBook(models.Model):
     grade = models.CharField("年级", max_length=30, choices=GRADE_LEVEL, default="age2-preschool")
     cover_img = models.ImageField("封面图", max_length=500, blank=True, null=True)
     author = models.ManyToManyField(Author)
+    voice_state = models.CharField("绘本语音状态", max_length=16, default="prepare")
+    state = models.IntegerField("绘本状态", default=0)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_created=True)
     utime = models.DateTimeField(auto_now=True)
