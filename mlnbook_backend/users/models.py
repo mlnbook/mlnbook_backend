@@ -41,7 +41,7 @@ class Author(models.Model):
     language = models.CharField("母语", max_length=16, default='zh_CN', choices=LANGUAGE_CODE_CHOICES)
     c_type = models.CharField("作者类型", max_length=16, default="staff",
                               help_text="certification 入驻认证，staff 平台内部组员，public 历史公开公共资源")
-    ctime = models.DateTimeField(auto_created=True)
+    ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -63,7 +63,7 @@ class Profile(models.Model):
     child_age = models.IntegerField("孩子年龄", default=2)
     valid_author = models.BooleanField("认证作者", default=False)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, null=True, help_text="平台作者认证，生成author对象关联")
-    ctime = models.DateTimeField(auto_created=True)
+    ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
 
     class Meta:

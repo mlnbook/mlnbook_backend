@@ -39,7 +39,7 @@ class PicBook(models.Model):
     voice_state = models.SmallIntegerField("绘本语音状态", default=0, choices=VOICE_STATE_CHOICES)
     state = models.SmallIntegerField("绘本状态", default=0, choices=BOOK_STATE_CHOICES)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    ctime = models.DateTimeField(auto_created=True)
+    ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -57,7 +57,7 @@ class BookSeries(models.Model):
     pic_books = models.ManyToManyField(PicBook)
     share_state = models.CharField("公开状态", max_length=16, default="public")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    ctime = models.DateTimeField(auto_created=True)
+    ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -84,7 +84,7 @@ class VoiceTemplate(models.Model):
     vocoder = models.CharField("使用tts模型", max_length=20, default="hifigan_v2")
     speaker = models.CharField("语音编码", max_length=50, blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    ctime = models.DateTimeField(auto_created=True)
+    ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -115,7 +115,7 @@ class ChapterTemplate(models.Model):
     # voice
     voice_template = models.ForeignKey(VoiceTemplate, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    ctime = models.DateTimeField(auto_created=True)
+    ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -128,7 +128,7 @@ class ChapterTemplate(models.Model):
 class IllustrationFile(models.Model):
     pic_file = models.ImageField("插图", upload_to="pic_books/illustration/", null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    ctime = models.DateTimeField(auto_created=True)
+    ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -150,7 +150,7 @@ class KnowledgePoint(models.Model):
     # voice_template = models.ForeignKey(VoiceTemplate, on_delete=models.CASCADE, null=True)
     pic_style = models.CharField("图片风格", max_length=20, default="realistic")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    ctime = models.DateTimeField(auto_created=True)
+    ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -175,7 +175,7 @@ class Paragraph(models.Model):
     page_para_seq = models.IntegerField("页内段落排序", default=1)
     # 单页模式，过滤pic_book，按照 page_num + page_para_seq 排序，一个个返回。
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    ctime = models.DateTimeField(auto_created=True)
+    ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -192,7 +192,7 @@ class ParagraphVoiceFile(models.Model):
     voice_file = models.FileField("语音文件", upload_to="pic_book/voice_file")
     duration = models.IntegerField("毫秒", default=1000)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    ctime = models.DateTimeField(auto_created=True)
+    ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -209,7 +209,7 @@ class KnowledgeVoiceFile(models.Model):
     voice_file = models.FileField("语音文件", upload_to="pic_book/voice_file")
     duration = models.IntegerField("毫秒", default=1000)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    ctime = models.DateTimeField(auto_created=True)
+    ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
 
     class Meta:

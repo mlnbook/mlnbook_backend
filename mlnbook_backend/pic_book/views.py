@@ -1,5 +1,6 @@
 # coding=utf-8
-from rest_framework import viewsets
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -13,6 +14,14 @@ from mlnbook_backend.pic_book.serializers import PicBookSerializer, KnowledgePoi
 class PicBookViewSet(viewsets.ModelViewSet):
     queryset = PicBook.objects.all()
     serializer_class = PicBookSerializer
+
+    @action(detail=False, methods=['post'])
+    def complete_create(self, request):
+        """
+        假定上传的为复合 json结构，一次性上传创建所有相关数据；
+        {"name": }
+        """
+        return Response({"detail": "创建成功"}, status=status.HTTP_201_CREATED)
 
 
 class KnowledgePointViewSet(viewsets.ModelViewSet):
