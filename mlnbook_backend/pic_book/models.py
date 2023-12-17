@@ -12,14 +12,12 @@ CHAPTER_TYPE_CHOICES = (
     ("private", "私人&平台不可用"),
 )
 
-
 VOICE_STATE_CHOICES = (
-    ("done", "完成"),
-    ("prepare", "准备中"),
-    ("process", "处理中"),
-    ("error", "出错"),
+    (1, "done"),
+    (0, "prepare"),
+    (2, "process"),
+    (-1, "error"),
 )
-
 
 BOOK_STATE_CHOICES = (
     (1, "online"),
@@ -38,8 +36,8 @@ class PicBook(models.Model):
     grade = models.CharField("年级", max_length=30, choices=GRADE_LEVEL, default="age2-preschool")
     cover_img = models.ImageField("封面图", max_length=500, blank=True, null=True)
     author = models.ManyToManyField(Author)
-    voice_state = models.CharField("绘本语音状态", max_length=16, default="prepare")
-    state = models.IntegerField("绘本状态", default=0)
+    voice_state = models.SmallIntegerField("绘本语音状态", default=0, choices=VOICE_STATE_CHOICES)
+    state = models.SmallIntegerField("绘本状态", default=0, choices=BOOK_STATE_CHOICES)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_created=True)
     utime = models.DateTimeField(auto_now=True)
@@ -70,10 +68,21 @@ class BookSeries(models.Model):
 
 
 class VoiceTemplate(models.Model):
+    """
+    使用说明：
+    $tts --model_name "<model_type>/<language>/<dataset>/<model_name>" \
+        --vocoder_name "<model_type>/<language>/<dataset>/<model_name>"
+    $tts --text "Text for TTS" --model_name "tts_models/en/ljspeech/glow-tts" \
+        --vocoder_name "vocoder_models/en/ljspeech/univnet" --out_path output/path/speech.wav
+    """
     title = models.CharField("标题", max_length=500)
-    language = models.CharField("语言", max_length=16, default="en_US", choices=LANGUAGE_CODE_CHOICES)
-    speaker = models.CharField("语音文件", max_length=50, blank=True)
-    tts_model = models.CharField("使用tts模型", max_length=20, default="coqui-xld1")
+    language = models.CharField("语言", max_length=16, default="en_US", help_text="language-ios_code, coqui保存路径")
+    tts_model = models.CharField("tts模型", max_length=20, default="coqui-ai",
+                                 help_text="开源TTS算法, coqui-ai, SpeechT5-microsoft")
+    model_name = models.CharField("模型名称", max_length=20, default="xtts_v1")
+    dataset = models.CharField("tts模型数据集", max_length=20, default="ljspeech")
+    vocoder = models.CharField("使用tts模型", max_length=20, default="hifigan_v2")
+    speaker = models.CharField("语音编码", max_length=50, blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_created=True)
     utime = models.DateTimeField(auto_now=True)
@@ -99,8 +108,10 @@ class ChapterTemplate(models.Model):
     font_size = models.CharField("文字大小", max_length=500)
     background_img = models.ImageField("背景图面", max_length=500)
     background_color = models.ImageField("背景颜色", max_length=500)
-    text_position = models.CharField("文本位置", max_length=20, default="bottom", help_text="文本框在图片中的位置：上中下左右？")
-    text_opacity = models.FloatField("文本透明度", default=1, help_text="opacity为不透度度，1为完全显示，0为完全透明; 0.5为半透明 ")
+    text_position = models.CharField("文本位置", max_length=20, default="bottom",
+                                     help_text="文本框在图片中的位置：上中下左右？")
+    text_opacity = models.FloatField("文本透明度", default=1,
+                                     help_text="opacity为不透度度，1为完全显示，0为完全透明; 0.5为半透明 ")
     # voice
     voice_template = models.ForeignKey(VoiceTemplate, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
