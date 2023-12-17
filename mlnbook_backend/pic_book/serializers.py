@@ -30,9 +30,9 @@ class ChapterTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ChapterTemplate
-        fields = ["id", "title", "description", "c_type", "text_template", "grid_layout", "user",
+        fields = ["id", "title", "description", "c_type", "text_template", "grid_row_col", "grid_gutter", "user",
                   "font_color", "font_family", "font_size", "background_img", "background_color",
-                  "text_position", "text_opacity", "voice_template", "ctime", "utime"]
+                  "text_flex_justify", "text_flex_align", "text_opacity", "voice_template", "ctime", "utime"]
 
 
 class KnowledgePointSerializer(serializers.ModelSerializer):

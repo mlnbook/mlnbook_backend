@@ -135,8 +135,8 @@ class ChapterTemplate(models.Model):
     # language = models.CharField("语言", max_length=16, default="en_US", choices=LANGUAGE_CODE_CHOICES)
     text_template = models.TextField("文案模板", blank=True)
     # 风格样式； style_template = models.ForeignKey(StyleTemplate, on_delete=models.CASCADE)
-    grid_layout = models.CharField("栅格布局", max_length=200, default="[[12,12], [12,12]]",
-                                   help_text="二维矩阵，；[[12,12], [12,12]] 布局")
+    grid_row_col = models.CharField("栅格布局", max_length=200, default="[[12,12], [12,12]]",
+                                    help_text="二维矩阵，；[[12,12], [12,12]] 布局")
     grid_gutter = models.CharField("栅格间距", max_length=20, default="[16, 24]",
                                    help_text="使用 (16+8n)px 作为栅格间隔(n 是自然数); [Horizontal水平, Vertical垂直]")
     font_color = models.CharField("颜色", max_length=16, default="#0000E0")
