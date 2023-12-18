@@ -220,10 +220,43 @@ class KnowledgePoint(models.Model):
         return self.illustration.pic_file.url
 
 
+class Page(models.Model):
+    pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
+    chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
+    page_num = models.IntegerField("页码", default=1)
+    layout = models.ForeignKey(LayoutTemplate, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    ctime = models.DateTimeField(auto_now_add=True)
+    utime = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "mlnbook_pic_book_page"
+
+
+class PageParagraph(models.Model):
+    page = models.ForeignKey(Page, on_delete=models.CASCADE)
+    para_content = models.TextField("段落内容", help_text="段落内容；一般基于知识点+章节复合生成")
+    para_content_uniq = models.CharField("段落内容唯一标识", max_length=64, help_text="content文本MD5加密")
+    knowledge_point = models.ForeignKey(KnowledgePoint, on_delete=models.CASCADE, null=True)
+    illustration = models.ForeignKey(IllustrationFile, null=True, on_delete=models.CASCADE)
+    seq = models.IntegerField("页内段落排序", default=1)
+    # 单页模式，过滤pic_book，按照 page_num + page_para_seq 排序，一个个返回。
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    ctime = models.DateTimeField(auto_now_add=True)
+    utime = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "mlnbook_pic_book_paragraph"
+        unique_together = ["pic_book", "chapter", "page", "para_content_uniq"]
+
+    def __str__(self):
+        return self.para_content
+
+
 class Paragraph(models.Model):
     pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
-    page = models.IntegerField("页码", default=1)
+    page_num = models.IntegerField("页码", default=1)
     layout = models.ForeignKey(LayoutTemplate, on_delete=models.CASCADE, null=True)
     para_content = models.TextField("段落内容", help_text="段落内容；一般基于知识点+章节复合生成")
     para_content_uniq = models.CharField("段落内容唯一标识", max_length=64, help_text="content文本MD5加密")
