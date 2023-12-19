@@ -263,7 +263,7 @@ class Paragraph(models.Model):
 #     para_content_uniq = models.CharField("段落内容唯一标识", max_length=64, help_text="content文本MD5加密")
 #     knowledge_point = models.ForeignKey(KnowledgePoint, on_delete=models.CASCADE, null=True)
 #     illustration = models.ForeignKey(IllustrationFile, null=True, on_delete=models.CASCADE)
-#     para_seq = models.IntegerField("页内段落排序", default=1)
+#     seq = models.IntegerField("页内段落排序", default=1)
 #     # 单页模式，过滤pic_book，按照 page_num + page_para_seq 排序，一个个返回。
 #     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 #     ctime = models.DateTimeField(auto_now_add=True)
