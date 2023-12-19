@@ -42,47 +42,6 @@ FLEX_ALIGN_OPTIONS = (
 )
 
 
-class PicBook(models.Model):
-    title = models.CharField("标题", max_length=500)
-    description = models.CharField("描述信息", max_length=1000, null=True, blank=True)
-    language = models.CharField("语言", max_length=16, default="en_US", choices=LANGUAGE_CODE_CHOICES)
-    language_level = models.CharField("语言级别", max_length=16, default="A1", choices=LANGUAGE_LEVEL)
-    tags = TaggableManager()
-    phase = models.CharField("学段", max_length=20, choices=PHASE_LEVEL, default="preschool")
-    grade = models.CharField("年级", max_length=30, choices=GRADE_LEVEL, default="age2-preschool")
-    cover_img = models.ImageField("封面图", max_length=500, blank=True, null=True)
-    author = models.ManyToManyField(Author)
-    voice_state = models.SmallIntegerField("绘本语音状态", default=0, choices=VOICE_STATE_CHOICES)
-    state = models.SmallIntegerField("绘本状态", default=0, choices=BOOK_STATE_CHOICES)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    ctime = models.DateTimeField(auto_now_add=True)
-    utime = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        db_table = "mlnbook_pic_book_pic_books"
-
-    def __str__(self):
-        return self.title
-
-
-class BookSeries(models.Model):
-    title = models.CharField("标题", max_length=500)
-    description = models.CharField("描述信息", max_length=1000, null=True, blank=True)
-    language = models.CharField("语言", max_length=16, default="en_US", choices=LANGUAGE_CODE_CHOICES)
-    tags = TaggableManager()
-    pic_books = models.ManyToManyField(PicBook)
-    share_state = models.CharField("公开状态", max_length=16, default="public")
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    ctime = models.DateTimeField(auto_now_add=True)
-    utime = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        db_table = "mlnbook_pic_book_book_series"
-
-    def __str__(self):
-        return self.title
-
-
 class VoiceTemplate(models.Model):
     """
     使用说明：
@@ -110,7 +69,50 @@ class VoiceTemplate(models.Model):
         return self.title
 
 
-class ChapterTemplate(models.Model):
+class PicBook(models.Model):
+    title = models.CharField("标题", max_length=500)
+    description = models.CharField("描述信息", max_length=1000, null=True, blank=True)
+    language = models.CharField("语言", max_length=16, default="en_US", choices=LANGUAGE_CODE_CHOICES)
+    language_level = models.CharField("语言级别", max_length=16, default="A1", choices=LANGUAGE_LEVEL)
+    tags = TaggableManager(blank=True)
+    phase = models.CharField("学段", max_length=20, choices=PHASE_LEVEL, default="preschool")
+    grade = models.CharField("年级", max_length=30, choices=GRADE_LEVEL, default="age2-preschool")
+    cover_img = models.ImageField("封面图", max_length=500, blank=True, null=True)
+    author = models.ManyToManyField(Author)
+    # voice
+    voice_template = models.ForeignKey(VoiceTemplate, on_delete=models.CASCADE)
+    voice_state = models.SmallIntegerField("绘本语音状态", default=0, choices=VOICE_STATE_CHOICES)
+    state = models.SmallIntegerField("绘本状态", default=0, choices=BOOK_STATE_CHOICES)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    ctime = models.DateTimeField(auto_now_add=True)
+    utime = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "mlnbook_pic_book_pic_books"
+
+    def __str__(self):
+        return self.title
+
+
+class BookSeries(models.Model):
+    title = models.CharField("标题", max_length=500)
+    description = models.CharField("描述信息", max_length=1000, null=True, blank=True)
+    language = models.CharField("语言", max_length=16, default="en_US", choices=LANGUAGE_CODE_CHOICES)
+    tags = TaggableManager(blank=True)
+    pic_books = models.ManyToManyField(PicBook)
+    share_state = models.CharField("公开状态", max_length=16, default="public")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    ctime = models.DateTimeField(auto_now_add=True)
+    utime = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "mlnbook_pic_book_book_series"
+
+    def __str__(self):
+        return self.title
+
+
+class LayoutTemplate(models.Model):
     """
     ant design grid栅格；
     1. 通过 row 在水平方向建立一组 column（简写 col）。
@@ -127,16 +129,20 @@ class ChapterTemplate(models.Model):
       <Col span={12}>col-12</Col>
       <Col span={12}>col-12</Col>
     </Row>
+    <Row>
+      <Col span={6}>col-6</Col>
+      <Col span={6}>col-6</Col>
+      <Col span={6}>col-6</Col>
+      <Col span={6}>col-6</Col>
+    </Row>
     """
     title = models.CharField("标题", max_length=500)
     description = models.CharField("描述信息", max_length=1000, null=True, blank=True)
-    c_type = models.CharField("章节类型", max_length=16, default="protected", choices=CHAPTER_TYPE_CHOICES,
+    c_type = models.CharField("类型", max_length=16, default="protected", choices=CHAPTER_TYPE_CHOICES,
                               help_text="public完全公开共享；protected内置受保护，仅平台可用；private私人创建，平台和其他人不可用")
-    # language = models.CharField("语言", max_length=16, default="en_US", choices=LANGUAGE_CODE_CHOICES)
-    text_template = models.TextField("文案模板", blank=True)
     # 风格样式； style_template = models.ForeignKey(StyleTemplate, on_delete=models.CASCADE)
-    grid_row_col = models.CharField("栅格布局", max_length=200, default="[[12,12], [12,12]]",
-                                    help_text="二维矩阵，；[[12,12], [12,12]] 布局")
+    grid_row_col = models.CharField("栅格布局", max_length=200, default="[[24]]",
+                                    help_text="单个[[24]]; 2x2=4个[[12,12],[12,12]];复杂[[12,12], [12,12], [6,6,6,6]]")
     grid_gutter = models.CharField("栅格间距", max_length=20, default="[16, 24]",
                                    help_text="使用 (16+8n)px 作为栅格间隔(n 是自然数); [Horizontal水平, Vertical垂直]")
     font_color = models.CharField("颜色", max_length=16, default="#0000E0")
@@ -150,14 +156,27 @@ class ChapterTemplate(models.Model):
                                        help_text="Flex弹性布局, 设置元素在交叉轴方向上的对齐方式")
     text_opacity = models.FloatField("文本透明度", default=1,
                                      help_text="opacity为不透度度，1为完全显示，0为完全透明; 0.5为半透明 ")
-    # voice
-    voice_template = models.ForeignKey(VoiceTemplate, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = "mlnbook_pic_book_chapter_template"
+        db_table = "mlnbook_pic_book_layout_template"
+
+    def __str__(self):
+        return self.title
+
+
+class Chapter(models.Model):
+    title = models.CharField("标题", max_length=200)
+    text_template = models.TextField("文案模板", max_length=1000, blank=True)
+    seq = models.SmallIntegerField("顺序", default=1)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    ctime = models.DateTimeField(auto_now_add=True)
+    utime = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "mlnbook_pic_book_chapter"
 
     def __str__(self):
         return self.title
@@ -181,10 +200,10 @@ class KnowledgePoint(models.Model):
     knowledge = models.CharField("知识内容", max_length=500, help_text="单词或句子，作为段落的一个主题内容")
     language = models.CharField("语言", max_length=16, default="en_US", choices=LANGUAGE_CODE_CHOICES)
     language_level = models.CharField("语言级别", max_length=16, default="A1", choices=LANGUAGE_LEVEL)
-    tags = TaggableManager()
+    tags = TaggableManager(blank=True)
     phase = models.CharField("学段", max_length=20, choices=PHASE_LEVEL, default="preschool")
     grade = models.CharField("年级", max_length=30, choices=GRADE_LEVEL, default="1t2-preschool")
-    illustration = models.ForeignKey(IllustrationFile, null=True, on_delete=models.CASCADE)
+    illustration = models.ForeignKey(IllustrationFile, on_delete=models.CASCADE, null=True, blank=True)
     # voice_template = models.ForeignKey(VoiceTemplate, on_delete=models.CASCADE, null=True)
     pic_style = models.CharField("图片风格", max_length=20, default="realistic")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -202,15 +221,29 @@ class KnowledgePoint(models.Model):
         return self.illustration.pic_file.url
 
 
-class Paragraph(models.Model):
+class BookPage(models.Model):
     pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
-    chapter = models.ForeignKey(ChapterTemplate, on_delete=models.CASCADE)
-    knowledge_point = models.ForeignKey(KnowledgePoint, on_delete=models.CASCADE, null=True)
+    chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
+    page_num = models.IntegerField("页码", default=1)
+    layout = models.ForeignKey(LayoutTemplate, on_delete=models.CASCADE, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    ctime = models.DateTimeField(auto_now_add=True)
+    utime = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "mlnbook_pic_book_page"
+
+    def __str__(self):
+        return "chapter_%s|page_%s" % (self.chapter.title, self.page_num)
+
+
+class Paragraph(models.Model):
+    book_page = models.ForeignKey(BookPage, on_delete=models.CASCADE, related_name="paragraphs")
     para_content = models.TextField("段落内容", help_text="段落内容；一般基于知识点+章节复合生成")
     para_content_uniq = models.CharField("段落内容唯一标识", max_length=64, help_text="content文本MD5加密")
-    illustration = models.ForeignKey(IllustrationFile, null=True, on_delete=models.CASCADE)
-    page_num = models.IntegerField("页码", default=1)
-    page_para_seq = models.IntegerField("页内段落排序", default=1)
+    knowledge_point = models.ForeignKey(KnowledgePoint, on_delete=models.CASCADE, null=True, blank=True)
+    illustration = models.ForeignKey(IllustrationFile, on_delete=models.CASCADE, null=True, blank=True)
+    seq = models.SmallIntegerField("页内段落排序", default=1)
     # 单页模式，过滤pic_book，按照 page_num + page_para_seq 排序，一个个返回。
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_now_add=True)
@@ -218,10 +251,33 @@ class Paragraph(models.Model):
 
     class Meta:
         db_table = "mlnbook_pic_book_paragraph"
-        unique_together = ["pic_book", "chapter", "para_content_uniq"]
+        unique_together = ["book_page", "para_content_uniq"]
 
     def __str__(self):
         return self.para_content
+
+
+# class Paragraph(models.Model):
+#     pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
+#     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
+#     page_num = models.IntegerField("页码", default=1)  # 第9页，9个段落；
+#     layout = models.ForeignKey(LayoutTemplate, on_delete=models.CASCADE, null=True)
+#     para_content = models.TextField("段落内容", help_text="段落内容；一般基于知识点+章节复合生成")
+#     para_content_uniq = models.CharField("段落内容唯一标识", max_length=64, help_text="content文本MD5加密")
+#     knowledge_point = models.ForeignKey(KnowledgePoint, on_delete=models.CASCADE, null=True)
+#     illustration = models.ForeignKey(IllustrationFile, null=True, on_delete=models.CASCADE)
+#     seq = models.IntegerField("页内段落排序", default=1)
+#     # 单页模式，过滤pic_book，按照 page_num + page_para_seq 排序，一个个返回。
+#     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+#     ctime = models.DateTimeField(auto_now_add=True)
+#     utime = models.DateTimeField(auto_now=True)
+#
+#     class Meta:
+#         db_table = "mlnbook_pic_book_paragraph"
+#         unique_together = ["pic_book", "chapter", "page_num", "para_content_uniq"]
+#
+#     def __str__(self):
+#         return self.para_content
 
 
 class ParagraphVoiceFile(models.Model):

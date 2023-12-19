@@ -1,7 +1,8 @@
 # coding=utf-8
 from rest_framework import serializers
 
-from mlnbook_backend.pic_book.models import PicBook, BookSeries, KnowledgePoint, Paragraph, ChapterTemplate
+from mlnbook_backend.pic_book.models import PicBook, Chapter, BookPage, Paragraph, LayoutTemplate, \
+    BookSeries, KnowledgePoint
 
 
 class PicBookSerializer(serializers.ModelSerializer):
@@ -26,13 +27,25 @@ class BookSeriesCreateSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'description', 'language', 'utime', 'pic_books']
 
 
-class ChapterTemplateSerializer(serializers.ModelSerializer):
+class LayoutTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = ChapterTemplate
-        fields = ["id", "title", "description", "c_type", "text_template", "grid_row_col", "grid_gutter", "user",
+        model = LayoutTemplate
+        fields = ["id", "title", "description", "c_type", "grid_row_col", "grid_gutter", "user",
                   "font_color", "font_family", "font_size", "background_img", "background_color",
-                  "text_flex_justify", "text_flex_align", "text_opacity", "voice_template", "ctime", "utime"]
+                  "text_flex_justify", "text_flex_align", "text_opacity", "ctime", "utime"]
+
+
+class ChapterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Chapter
+        fields = ["id", "title", "text_template", "seq", "user", "utime"]
+
+
+class BookPageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = BookPage
+        fields = ["id", "page_num", "pic_book", "chapter", "layout", "user", "utime"]
 
 
 class KnowledgePointSerializer(serializers.ModelSerializer):
@@ -47,16 +60,20 @@ class ParagraphSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Paragraph
-        fields = ["id", "paragraph_uniq", "pic_book", "chapter", "knowledge_point", "para_content", "illustration",
-                  "page_num", "page_para_seq", "user", "utime"]
+        fields = ["id", "para_content_uniq", "book_page", "knowledge_point", "para_content", "illustration",
+                  "seq", "user", "utime"]
 
 
-class PicBookCompleteSerializer(serializers.ModelSerializer):
-    pic_book = PicBookSerializer()
-    chapter = ChapterTemplateSerializer()
-    knowledge_point = KnowledgePointSerializer()
+class BookPageParagraphSerializer(serializers.ModelSerializer):
+    paragraphs = ParagraphSerializer(many=True)
 
     class Meta:
-        model = Paragraph
-        fields = ["id", "paragraph_uniq", "pic_book", "chapter", "knowledge_point", "para_content", "illustration",
-                  "page_num", "page_para_seq", "user", "utime"]
+        model = BookPage
+        fields = ["id", "page_num", "pic_book", "chapter", "layout", "user", "utime", "paragraphs"]
+
+    def create(self, validated_data):
+        paragraphs_data = validated_data.pop('paragraphs')
+        book_page = BookPage.objects.create(**validated_data)
+        for paragraph_data in paragraphs_data:
+            Paragraph.objects.create(book_page=book_page, **paragraph_data)
+        return book_page

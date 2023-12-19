@@ -1,27 +1,20 @@
 # coding=utf-8
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
+# from rest_framework.decorators import action
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from mlnbook_backend.pic_book.models import PicBook, KnowledgePoint, ChapterTemplate, Paragraph, \
-    BookSeries, IllustrationFile
+from mlnbook_backend.pic_book.models import PicBook, KnowledgePoint, Chapter, Paragraph, \
+    BookSeries, IllustrationFile, LayoutTemplate, BookPage
 from mlnbook_backend.pic_book.serializers import PicBookSerializer, KnowledgePointSerializer, \
-    ChapterTemplateSerializer, ParagraphSerializer, BookSeriesListSerializer, BookSeriesCreateSerializer
+    ChapterSerializer, LayoutTemplateSerializer, ParagraphSerializer, BookSeriesListSerializer, \
+    BookSeriesCreateSerializer, BookPageSerializer, BookPageParagraphSerializer
 
 
 class PicBookViewSet(viewsets.ModelViewSet):
     queryset = PicBook.objects.all()
     serializer_class = PicBookSerializer
-
-    @action(detail=False, methods=['post'])
-    def complete_create(self, request):
-        """
-        假定上传的为复合 json结构，一次性上传创建所有相关数据；
-        {"name": }
-        """
-        return Response({"detail": "创建成功"}, status=status.HTTP_201_CREATED)
 
 
 class KnowledgePointViewSet(viewsets.ModelViewSet):
@@ -29,9 +22,25 @@ class KnowledgePointViewSet(viewsets.ModelViewSet):
     serializer_class = KnowledgePointSerializer
 
 
-class ChapterTemplateViewSet(viewsets.ModelViewSet):
-    queryset = ChapterTemplate.objects.all()
-    serializer_class = ChapterTemplateSerializer
+class LayoutTemplateViewSet(viewsets.ModelViewSet):
+    queryset = LayoutTemplate.objects.all()
+    serializer_class = LayoutTemplateSerializer
+
+
+class ChapterViewSet(viewsets.ModelViewSet):
+    queryset = Chapter.objects.all()
+    serializer_class = ChapterSerializer
+
+
+class BookPageViewSet(viewsets.ModelViewSet):
+    queryset = BookPage.objects.all()
+    serializer_class = BookPageSerializer
+
+    def get_serializer_class(self):
+        if self.action in ["create", "list", "retrieve"]:
+            return BookPageParagraphSerializer
+        else:
+            return BookPageSerializer
 
 
 class ParagraphViewSet(viewsets.ModelViewSet):

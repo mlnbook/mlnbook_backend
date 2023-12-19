@@ -70,7 +70,7 @@ class Profile(models.Model):
         db_table = "mlnbook_user_profile"
 
     def __str__(self):
-        return self.user
+        return self.nick_name
 
 
 @receiver(post_save, sender=User)

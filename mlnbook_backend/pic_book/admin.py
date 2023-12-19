@@ -1,8 +1,8 @@
 # coding=utf-8
 from django.contrib import admin
 
-from mlnbook_backend.pic_book.models import PicBook, BookSeries, ChapterTemplate, KnowledgePoint, Paragraph,\
-    KnowledgeVoiceFile, ParagraphVoiceFile, IllustrationFile, VoiceTemplate
+from mlnbook_backend.pic_book.models import BookSeries, PicBook, Chapter, LayoutTemplate, BookPage, \
+    KnowledgePoint, Paragraph, KnowledgeVoiceFile, ParagraphVoiceFile, IllustrationFile, VoiceTemplate
 
 
 @admin.register(PicBook)
@@ -19,9 +19,21 @@ class BookSeriesAdmin(admin.ModelAdmin):
     list_filter = ["share_state", "language"]
 
 
-@admin.register(ChapterTemplate)
-class ChapterTemplateAdmin(admin.ModelAdmin):
-    list_display = ["c_type", "title", "description", "user", "text_template", "ctime"]
+@admin.register(Chapter)
+class ChapterAdmin(admin.ModelAdmin):
+    list_display = ["id", "title", "text_template", "user", "ctime"]
+    search_fields = ["title"]
+
+
+@admin.register(BookPage)
+class BookPageAdmin(admin.ModelAdmin):
+    list_display = ["id", "page_num", "pic_book", "chapter", "layout", "ctime"]
+    search_fields = ["pic_book__title"]
+
+
+@admin.register(LayoutTemplate)
+class LayoutTemplateAdmin(admin.ModelAdmin):
+    list_display = ["id", "title", "grid_row_col", "grid_gutter", "user", "c_type", "ctime"]
     search_fields = ["title"]
     list_filter = ["c_type", ]
 
@@ -35,8 +47,8 @@ class KnowledgePointAdmin(admin.ModelAdmin):
 
 @admin.register(Paragraph)
 class ParagraphAdmin(admin.ModelAdmin):
-    list_display = ["para_content_uniq", "pic_book", "chapter", "knowledge_point", "para_content",
-                    "page_num", "page_para_seq", "user", "ctime"]
+    list_display = ["para_content_uniq", "book_page", "knowledge_point", "para_content",
+                    "seq", "user", "ctime"]
     search_fields = ["para_content"]
 
 
