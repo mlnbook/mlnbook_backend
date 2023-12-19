@@ -170,6 +170,7 @@ class LayoutTemplate(models.Model):
 class Chapter(models.Model):
     title = models.CharField("标题", max_length=200)
     text_template = models.TextField("文案模板", max_length=1000, blank=True)
+    seq = models.SmallIntegerField("顺序", default=1)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
@@ -220,7 +221,7 @@ class KnowledgePoint(models.Model):
         return self.illustration.pic_file.url
 
 
-class Page(models.Model):
+class BookPage(models.Model):
     pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
     page_num = models.IntegerField("页码", default=1)
@@ -233,36 +234,13 @@ class Page(models.Model):
         db_table = "mlnbook_pic_book_page"
 
 
-class PageParagraph(models.Model):
-    page = models.ForeignKey(Page, on_delete=models.CASCADE)
-    para_content = models.TextField("段落内容", help_text="段落内容；一般基于知识点+章节复合生成")
-    para_content_uniq = models.CharField("段落内容唯一标识", max_length=64, help_text="content文本MD5加密")
-    knowledge_point = models.ForeignKey(KnowledgePoint, on_delete=models.CASCADE, null=True)
-    illustration = models.ForeignKey(IllustrationFile, null=True, on_delete=models.CASCADE)
-    seq = models.IntegerField("页内段落排序", default=1)
-    # 单页模式，过滤pic_book，按照 page_num + page_para_seq 排序，一个个返回。
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    ctime = models.DateTimeField(auto_now_add=True)
-    utime = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        db_table = "mlnbook_pic_book_paragraph"
-        unique_together = ["pic_book", "chapter", "page", "para_content_uniq"]
-
-    def __str__(self):
-        return self.para_content
-
-
 class Paragraph(models.Model):
-    pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
-    chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
-    page_num = models.IntegerField("页码", default=1)
-    layout = models.ForeignKey(LayoutTemplate, on_delete=models.CASCADE, null=True)
+    book_page = models.ForeignKey(BookPage, on_delete=models.CASCADE)
     para_content = models.TextField("段落内容", help_text="段落内容；一般基于知识点+章节复合生成")
     para_content_uniq = models.CharField("段落内容唯一标识", max_length=64, help_text="content文本MD5加密")
     knowledge_point = models.ForeignKey(KnowledgePoint, on_delete=models.CASCADE, null=True)
     illustration = models.ForeignKey(IllustrationFile, null=True, on_delete=models.CASCADE)
-    para_seq = models.IntegerField("页内段落排序", default=1)
+    seq = models.SmallIntegerField("页内段落排序", default=1)
     # 单页模式，过滤pic_book，按照 page_num + page_para_seq 排序，一个个返回。
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_now_add=True)
@@ -270,10 +248,33 @@ class Paragraph(models.Model):
 
     class Meta:
         db_table = "mlnbook_pic_book_paragraph"
-        unique_together = ["pic_book", "chapter", "page_num", "para_content_uniq"]
+        unique_together = ["book_page", "para_content_uniq"]
 
     def __str__(self):
         return self.para_content
+
+
+# class Paragraph(models.Model):
+#     pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
+#     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
+#     page_num = models.IntegerField("页码", default=1)  # 第9页，9个段落；
+#     layout = models.ForeignKey(LayoutTemplate, on_delete=models.CASCADE, null=True)
+#     para_content = models.TextField("段落内容", help_text="段落内容；一般基于知识点+章节复合生成")
+#     para_content_uniq = models.CharField("段落内容唯一标识", max_length=64, help_text="content文本MD5加密")
+#     knowledge_point = models.ForeignKey(KnowledgePoint, on_delete=models.CASCADE, null=True)
+#     illustration = models.ForeignKey(IllustrationFile, null=True, on_delete=models.CASCADE)
+#     para_seq = models.IntegerField("页内段落排序", default=1)
+#     # 单页模式，过滤pic_book，按照 page_num + page_para_seq 排序，一个个返回。
+#     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+#     ctime = models.DateTimeField(auto_now_add=True)
+#     utime = models.DateTimeField(auto_now=True)
+#
+#     class Meta:
+#         db_table = "mlnbook_pic_book_paragraph"
+#         unique_together = ["pic_book", "chapter", "page_num", "para_content_uniq"]
+#
+#     def __str__(self):
+#         return self.para_content
 
 
 class ParagraphVoiceFile(models.Model):
