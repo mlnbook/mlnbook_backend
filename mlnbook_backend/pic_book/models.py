@@ -74,7 +74,7 @@ class PicBook(models.Model):
     description = models.CharField("描述信息", max_length=1000, null=True, blank=True)
     language = models.CharField("语言", max_length=16, default="en_US", choices=LANGUAGE_CODE_CHOICES)
     language_level = models.CharField("语言级别", max_length=16, default="A1", choices=LANGUAGE_LEVEL)
-    tags = TaggableManager()
+    tags = TaggableManager(blank=True)
     phase = models.CharField("学段", max_length=20, choices=PHASE_LEVEL, default="preschool")
     grade = models.CharField("年级", max_length=30, choices=GRADE_LEVEL, default="age2-preschool")
     cover_img = models.ImageField("封面图", max_length=500, blank=True, null=True)
@@ -98,7 +98,7 @@ class BookSeries(models.Model):
     title = models.CharField("标题", max_length=500)
     description = models.CharField("描述信息", max_length=1000, null=True, blank=True)
     language = models.CharField("语言", max_length=16, default="en_US", choices=LANGUAGE_CODE_CHOICES)
-    tags = TaggableManager()
+    tags = TaggableManager(blank=True)
     pic_books = models.ManyToManyField(PicBook)
     share_state = models.CharField("公开状态", max_length=16, default="public")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -200,10 +200,10 @@ class KnowledgePoint(models.Model):
     knowledge = models.CharField("知识内容", max_length=500, help_text="单词或句子，作为段落的一个主题内容")
     language = models.CharField("语言", max_length=16, default="en_US", choices=LANGUAGE_CODE_CHOICES)
     language_level = models.CharField("语言级别", max_length=16, default="A1", choices=LANGUAGE_LEVEL)
-    tags = TaggableManager()
+    tags = TaggableManager(blank=True)
     phase = models.CharField("学段", max_length=20, choices=PHASE_LEVEL, default="preschool")
     grade = models.CharField("年级", max_length=30, choices=GRADE_LEVEL, default="1t2-preschool")
-    illustration = models.ForeignKey(IllustrationFile, null=True, on_delete=models.CASCADE)
+    illustration = models.ForeignKey(IllustrationFile, on_delete=models.CASCADE, null=True, blank=True)
     # voice_template = models.ForeignKey(VoiceTemplate, on_delete=models.CASCADE, null=True)
     pic_style = models.CharField("图片风格", max_length=20, default="realistic")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -233,13 +233,16 @@ class BookPage(models.Model):
     class Meta:
         db_table = "mlnbook_pic_book_page"
 
+    def __str__(self):
+        return "chapter_%s|page_%s" % (self.chapter.title, self.page_num)
+
 
 class Paragraph(models.Model):
-    book_page = models.ForeignKey(BookPage, on_delete=models.CASCADE)
+    book_page = models.ForeignKey(BookPage, on_delete=models.CASCADE, related_name="paragraphs")
     para_content = models.TextField("段落内容", help_text="段落内容；一般基于知识点+章节复合生成")
     para_content_uniq = models.CharField("段落内容唯一标识", max_length=64, help_text="content文本MD5加密")
-    knowledge_point = models.ForeignKey(KnowledgePoint, on_delete=models.CASCADE, null=True)
-    illustration = models.ForeignKey(IllustrationFile, null=True, on_delete=models.CASCADE)
+    knowledge_point = models.ForeignKey(KnowledgePoint, on_delete=models.CASCADE, null=True, blank=True)
+    illustration = models.ForeignKey(IllustrationFile, on_delete=models.CASCADE, null=True, blank=True)
     seq = models.SmallIntegerField("页内段落排序", default=1)
     # 单页模式，过滤pic_book，按照 page_num + page_para_seq 排序，一个个返回。
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

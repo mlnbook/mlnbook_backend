@@ -60,7 +60,7 @@ class ParagraphSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Paragraph
-        fields = ["id", "paragraph_uniq", "book_page", "knowledge_point", "para_content", "illustration",
+        fields = ["id", "para_content_uniq", "book_page", "knowledge_point", "para_content", "illustration",
                   "seq", "user", "utime"]
 
 

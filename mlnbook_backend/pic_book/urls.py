@@ -6,7 +6,7 @@ from mlnbook_backend.pic_book.views import PicBookViewSet, KnowledgePointViewSet
     ParagraphViewSet, BookSeriesViewSet, IllustrationFileUploadView, ChapterViewSet, BookPageViewSet
 
 router = routers.DefaultRouter()
-router.register('pic_book', PicBookViewSet)
+router.register('book', PicBookViewSet)
 router.register('knowledge', KnowledgePointViewSet)
 router.register('chapter', ChapterViewSet)
 router.register('layout', LayoutTemplateViewSet)
