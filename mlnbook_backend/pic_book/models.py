@@ -147,7 +147,7 @@ class LayoutTemplate(models.Model):
                                    help_text="使用 (16+8n)px 作为栅格间隔(n 是自然数); [Horizontal水平, Vertical垂直]")
     font_color = models.CharField("颜色", max_length=16, default="#0000E0")
     font_family = models.CharField("字体", max_length=50, default="Arial")
-    font_size = models.SmallIntegerField("文字大小", default="14", help_text="14px")    
+    font_size = models.SmallIntegerField("文字大小", default="14", help_text="14px")
     background_img = models.ImageField("背景图面", upload_to="pic_books/backgroup/", null=True, blank=True)
     background_color = models.CharField("背景颜色", max_length=16, default="#FFFFFF")
     text_flex_justify = models.CharField("文本主轴位置", max_length=20, default="flex-end", choices=FLEX_JUSTIFY_OPTIONS,
