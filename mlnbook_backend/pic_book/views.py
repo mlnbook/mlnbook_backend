@@ -1,6 +1,6 @@
 # coding=utf-8
 from rest_framework import viewsets, status
-# from rest_framework.decorators import action
+from rest_framework.decorators import action
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -9,12 +9,41 @@ from mlnbook_backend.pic_book.models import PicBook, KnowledgePoint, Chapter, Pa
     BookSeries, IllustrationFile, LayoutTemplate, BookPage
 from mlnbook_backend.pic_book.serializers import PicBookSerializer, KnowledgePointSerializer, \
     ChapterSerializer, LayoutTemplateSerializer, ParagraphSerializer, BookSeriesListSerializer, \
-    BookSeriesCreateSerializer, BookPageSerializer, BookPageParagraphSerializer
+    BookSeriesCreateSerializer, BookPageSerializer, BookPageParagraphSerializer, ChapterParagraphSerializer, \
+    ChapterPageSerializer
 
 
 class PicBookViewSet(viewsets.ModelViewSet):
     queryset = PicBook.objects.all()
     serializer_class = PicBookSerializer
+
+    @action(detail=True)
+    def chapters(self, request, pk=None):
+        pic_book = self.get_object()
+        chapter_queryset = pic_book.chapter_set.all()
+        serializer = ChapterSerializer(chapter_queryset, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True)
+    def chapter_page(self, request, pk=None):
+        pic_book = self.get_object()
+        chapter_queryset = pic_book.chapter_set.all()
+        serializer = ChapterPageSerializer(chapter_queryset, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True)
+    def chapter_page_paragraph(self, request, pk=None):
+        pic_book = self.get_object()
+        chapter_queryset = pic_book.chapter_set.all()
+        serializer = ChapterParagraphSerializer(chapter_queryset, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True)
+    def page_paragraph(self, request, pk=None):
+        pic_book = self.get_object()
+        page_queryset = pic_book.bookpage_set.all()
+        serializer = BookPageParagraphSerializer(page_queryset, many=True)
+        return Response(serializer.data)
 
 
 class KnowledgePointViewSet(viewsets.ModelViewSet):

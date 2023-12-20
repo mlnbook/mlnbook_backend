@@ -69,7 +69,7 @@ class BookPageParagraphSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BookPage
-        fields = ["id", "page_num", "pic_book", "chapter", "layout", "user", "utime", "paragraphs"]
+        fields = ["id", "page_num", "chapter", "layout", "user", "utime", "paragraphs"]
 
     def create(self, validated_data):
         paragraphs_data = validated_data.pop('paragraphs')
@@ -77,3 +77,19 @@ class BookPageParagraphSerializer(serializers.ModelSerializer):
         for paragraph_data in paragraphs_data:
             Paragraph.objects.create(book_page=book_page, **paragraph_data)
         return book_page
+
+
+class ChapterPageSerializer(serializers.ModelSerializer):
+    bookpage_set = BookPageSerializer(many=True)
+
+    class Meta:
+        model = Chapter
+        fields = ["id", "title", "text_template", "seq", "user", "utime", "bookpage_set"]
+
+
+class ChapterParagraphSerializer(serializers.ModelSerializer):
+    bookpage_set = BookPageParagraphSerializer(many=True)
+
+    class Meta:
+        model = Chapter
+        fields = ["id", "title", "text_template", "seq", "user", "utime", "bookpage_set"]

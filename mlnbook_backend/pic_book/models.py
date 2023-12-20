@@ -168,6 +168,7 @@ class LayoutTemplate(models.Model):
 
 
 class Chapter(models.Model):
+    pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
     title = models.CharField("标题", max_length=200)
     text_template = models.TextField("文案模板", max_length=1000, blank=True)
     seq = models.SmallIntegerField("顺序", default=1)
@@ -238,6 +239,8 @@ class BookPage(models.Model):
 
 
 class Paragraph(models.Model):
+    pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
+    chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
     book_page = models.ForeignKey(BookPage, on_delete=models.CASCADE, related_name="paragraphs")
     para_content = models.TextField("段落内容", help_text="段落内容；一般基于知识点+章节复合生成")
     para_content_uniq = models.CharField("段落内容唯一标识", max_length=64, help_text="content文本MD5加密")
