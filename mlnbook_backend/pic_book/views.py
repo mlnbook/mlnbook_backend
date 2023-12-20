@@ -88,7 +88,7 @@ class BookPageViewSet(viewsets.ModelViewSet):
     @action(detail=True)
     def paragraph(self, request, pk=None):
         page = self.get_object()
-        paragraph_queryset = page.paragraph_set.all()
+        paragraph_queryset = page.paragraphs.all()
         serializer = ParagraphSerializer(paragraph_queryset, many=True)
         return Response(serializer.data)
 
