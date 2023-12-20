@@ -60,6 +60,20 @@ class ChapterViewSet(viewsets.ModelViewSet):
     queryset = Chapter.objects.all()
     serializer_class = ChapterSerializer
 
+    @action(detail=True)
+    def page(self, request, pk=None):
+        chapter = self.get_object()
+        bookpage_queryset = chapter.bookpage_set.all()
+        serializer = BookPageSerializer(bookpage_queryset, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True)
+    def page_paragraph(self, request, pk=None):
+        chapter = self.get_object()
+        bookpage_queryset = chapter.bookpage_set.all()
+        serializer = BookPageParagraphSerializer(bookpage_queryset, many=True)
+        return Response(serializer.data)
+
 
 class BookPageViewSet(viewsets.ModelViewSet):
     queryset = BookPage.objects.all()
@@ -70,6 +84,13 @@ class BookPageViewSet(viewsets.ModelViewSet):
             return BookPageParagraphSerializer
         else:
             return BookPageSerializer
+
+    @action(detail=True)
+    def paragraph(self, request, pk=None):
+        page = self.get_object()
+        paragraph_queryset = page.paragraph_set.all()
+        serializer = ParagraphSerializer(paragraph_queryset, many=True)
+        return Response(serializer.data)
 
 
 class ParagraphViewSet(viewsets.ModelViewSet):
