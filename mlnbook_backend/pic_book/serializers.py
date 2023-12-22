@@ -3,9 +3,12 @@ from rest_framework import serializers
 
 from mlnbook_backend.pic_book.models import PicBook, Chapter, BookPage, Paragraph, LayoutTemplate, \
     BookSeries, KnowledgePoint
+from mlnbook_backend.users.serializers import AuthorSerializer
 
 
 class PicBookSerializer(serializers.ModelSerializer):
+    author = AuthorSerializer(many=True)
+
     class Meta:
         model = PicBook
         fields = ['id', 'title', 'description', 'language', 'language_level', 'phase', 'grade', 'author', 'utime']
