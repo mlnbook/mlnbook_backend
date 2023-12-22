@@ -18,7 +18,7 @@ class PicBookViewSet(viewsets.ModelViewSet):
     serializer_class = PicBookSerializer
 
     @action(detail=True)
-    def chapters(self, request, pk=None):
+    def chapter(self, request, pk=None):
         pic_book = self.get_object()
         chapter_queryset = pic_book.chapter_set.all()
         serializer = ChapterSerializer(chapter_queryset, many=True)
