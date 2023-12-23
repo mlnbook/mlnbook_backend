@@ -6,11 +6,16 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from mlnbook_backend.pic_book.models import PicBook, KnowledgePoint, Chapter, Paragraph, \
-    BookSeries, IllustrationFile, LayoutTemplate, BookPage
+    BookSeries, IllustrationFile, LayoutTemplate, BookPage, VoiceTemplate
 from mlnbook_backend.pic_book.serializers import PicBookSerializer, KnowledgePointSerializer, \
     ChapterSerializer, LayoutTemplateSerializer, ParagraphSerializer, BookSeriesListSerializer, \
     BookSeriesCreateSerializer, BookPageSerializer, BookPageParagraphSerializer, ChapterParagraphSerializer, \
-    ChapterPageSerializer
+    ChapterPageSerializer, VoiceTemplateSerializer
+
+
+class VoiceTemplateViewSet(viewsets.ModelViewSet):
+    queryset = VoiceTemplate.objects.all()
+    serializer_class = VoiceTemplateSerializer
 
 
 class PicBookViewSet(viewsets.ModelViewSet):

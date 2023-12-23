@@ -2,8 +2,14 @@
 from rest_framework import serializers
 
 from mlnbook_backend.pic_book.models import PicBook, Chapter, BookPage, Paragraph, LayoutTemplate, \
-    BookSeries, KnowledgePoint
+    BookSeries, KnowledgePoint, VoiceTemplate
 from mlnbook_backend.users.serializers import AuthorSerializer
+
+
+class VoiceTemplateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VoiceTemplate
+        fields = ['id', 'title', 'language', 'tts_model', 'model_name']
 
 
 class PicBookSerializer(serializers.ModelSerializer):
