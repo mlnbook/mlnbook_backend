@@ -10,7 +10,7 @@ from mlnbook_backend.pic_book.models import PicBook, KnowledgePoint, Chapter, Pa
 from mlnbook_backend.pic_book.serializers import PicBookSerializer, KnowledgePointSerializer, \
     ChapterSerializer, LayoutTemplateSerializer, ParagraphSerializer, BookSeriesListSerializer, \
     BookSeriesCreateSerializer, BookPageSerializer, BookPageParagraphSerializer, ChapterParagraphSerializer, \
-    ChapterPageSerializer, PicBookEditSerializer, VoiceTemplateSerializer
+    ChapterPageSerializer, PicBookEditSerializer, VoiceTemplateSerializer, ParagraphBulkSerializer
 
 from mlnbook_backend.users.models import Author
 from mlnbook_backend.users.serializers import AuthorSerializer
@@ -113,10 +113,13 @@ class ParagraphViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"])
     def batch_create(self, request, *args, **kwargs):
-        serializer = ParagraphSerializer(data=request.data, many=True)
-        serializer.is_valid(raise_exception=True)
-        objs = Paragraph.objects.bulk_create([Paragraph(**item) for item in serializer.data])
-        return Response({"detail": "创建成功"})
+        serializer = ParagraphBulkSerializer(data=request.data, many=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BookSeriesViewSet(viewsets.ModelViewSet):

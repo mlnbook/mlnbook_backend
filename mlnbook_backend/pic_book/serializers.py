@@ -83,6 +83,21 @@ class ParagraphSerializer(AuthModelSerializer):
                   "seq", "utime"]
 
 
+class ParagraphBulkCreateUpdateSerializer(serializers.ListSerializer):
+    def create(self, validated_data):
+        para_data = [Paragraph(**item) for item in validated_data]
+        return Paragraph.objects.bulk_create(para_data)
+
+
+class ParagraphBulkSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Paragraph
+        fields = ["id", "para_content_uniq", "book_page", "knowledge_point", "para_content", "illustration",
+                  "seq", "utime"]
+        read_only_fields = ['id', ]
+        list_serializer_class = ParagraphBulkCreateUpdateSerializer
+
+
 class BookPageParagraphSerializer(AuthModelSerializer):
     paragraphs = ParagraphSerializer(many=True)
 
