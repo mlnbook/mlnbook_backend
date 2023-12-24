@@ -50,7 +50,7 @@ class LayoutTemplateSerializer(AuthModelSerializer):
 
     class Meta:
         model = LayoutTemplate
-        fields = ["id", "title", "description", "c_type", "grid_row_col", "grid_gutter", "user",
+        fields = ["id", "title", "description", "c_type", "grid_row_col", "grid_gutter",
                   "font_color", "font_family", "font_size", "background_img", "background_color",
                   "text_flex_justify", "text_flex_align", "text_opacity", "ctime", "utime"]
 
@@ -58,13 +58,13 @@ class LayoutTemplateSerializer(AuthModelSerializer):
 class ChapterSerializer(AuthModelSerializer):
     class Meta:
         model = Chapter
-        fields = ["id", "title", "pic_book", "text_template", "seq", "user", "utime"]
+        fields = ["id", "title", "pic_book", "text_template", "seq", "utime"]
 
 
 class BookPageSerializer(AuthModelSerializer):
     class Meta:
         model = BookPage
-        fields = ["id", "page_num", "pic_book", "chapter", "layout", "user", "utime"]
+        fields = ["id", "page_num", "pic_book", "chapter", "layout", "utime"]
 
 
 class KnowledgePointSerializer(AuthModelSerializer):
@@ -72,7 +72,7 @@ class KnowledgePointSerializer(AuthModelSerializer):
     class Meta:
         model = KnowledgePoint
         fields = ["id", "knowledge_uniq", "knowledge", "language", "language_level", "phase", "grade", "pic_style",
-                  "user", "ctime", "utime"]
+                  "ctime", "utime"]
 
 
 class ParagraphSerializer(AuthModelSerializer):
@@ -80,7 +80,7 @@ class ParagraphSerializer(AuthModelSerializer):
     class Meta:
         model = Paragraph
         fields = ["id", "para_content_uniq", "book_page", "knowledge_point", "para_content", "illustration",
-                  "seq", "user", "utime"]
+                  "seq", "utime"]
 
 
 class BookPageParagraphSerializer(AuthModelSerializer):
@@ -88,7 +88,7 @@ class BookPageParagraphSerializer(AuthModelSerializer):
 
     class Meta:
         model = BookPage
-        fields = ["id", "pic_book", "page_num", "chapter", "layout", "user", "utime", "paragraphs"]
+        fields = ["id", "pic_book", "page_num", "chapter", "layout", "utime", "paragraphs"]
 
     def create(self, validated_data):
         paragraphs_data = validated_data.pop('paragraphs')
@@ -103,7 +103,7 @@ class ChapterPageSerializer(AuthModelSerializer):
 
     class Meta:
         model = Chapter
-        fields = ["id", "title", "text_template", "seq", "user", "utime", "bookpage_set"]
+        fields = ["id", "title", "text_template", "seq", "utime", "bookpage_set"]
 
 
 class ChapterParagraphSerializer(AuthModelSerializer):
@@ -111,4 +111,4 @@ class ChapterParagraphSerializer(AuthModelSerializer):
 
     class Meta:
         model = Chapter
-        fields = ["id", "title", "text_template", "seq", "user", "utime", "bookpage_set"]
+        fields = ["id", "title", "text_template", "seq", "utime", "bookpage_set"]

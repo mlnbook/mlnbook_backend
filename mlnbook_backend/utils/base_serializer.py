@@ -11,10 +11,10 @@ class AuthModelSerializer(serializers.ModelSerializer):
         validated_data['user'] = user
         return super().create(validated_data)
 
-    def update(self, validated_data):
+    def update(self, instance, validated_data):
         # Get the authenticated user from the request
         user = self.context['request'].user
 
         # Add the authenticated user
         validated_data['user'] = user
-        return super().create(validated_data)
+        return super().update(instance, validated_data)

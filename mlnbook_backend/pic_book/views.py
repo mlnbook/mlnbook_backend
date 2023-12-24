@@ -114,7 +114,7 @@ class ParagraphViewSet(viewsets.ModelViewSet):
 
 class BookSeriesViewSet(viewsets.ModelViewSet):
     queryset = BookSeries.objects.all()
-    serializer_class = ParagraphSerializer
+    serializer_class = BookSeriesListSerializer
 
     def get_serializer_class(self):
         if self.action in ("list", "detail"):
