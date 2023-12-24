@@ -111,6 +111,13 @@ class ParagraphViewSet(viewsets.ModelViewSet):
     queryset = Paragraph.objects.all()
     serializer_class = ParagraphSerializer
 
+    @action(detail=False, methods=["post"])
+    def batch_create(self, request, *args, **kwargs):
+        serializer = ParagraphSerializer(data=request.data, many=True)
+        serializer.is_valid(raise_exception=True)
+        objs = Paragraph.objects.bulk_create([Paragraph(**item) for item in serializer.data])
+        return Response({"detail": "创建成功"})
+
 
 class BookSeriesViewSet(viewsets.ModelViewSet):
     queryset = BookSeries.objects.all()
