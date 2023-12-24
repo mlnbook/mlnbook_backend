@@ -13,11 +13,11 @@ class VoiceTemplateSerializer(serializers.ModelSerializer):
 
 
 class PicBookSerializer(serializers.ModelSerializer):
-    author = AuthorSerializer(many=True)
+    # author = AuthorSerializer(many=True)
 
     class Meta:
         model = PicBook
-        fields = ['id', 'title', 'description', 'language', 'language_level', 'phase', 'grade', 'author', 'utime']
+        fields = ['id', 'title', 'description', 'language', 'language_level', 'phase', 'grade', 'cover_img', 'user', 'voice_template', 'utime']
 
 
 class BookSeriesListSerializer(serializers.ModelSerializer):
@@ -48,7 +48,7 @@ class LayoutTemplateSerializer(serializers.ModelSerializer):
 class ChapterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chapter
-        fields = ["id", "title", "text_template", "seq", "user", "utime"]
+        fields = ["id", "title", "pic_book", "text_template", "seq", "user", "utime"]
 
 
 class BookPageSerializer(serializers.ModelSerializer):
@@ -78,7 +78,7 @@ class BookPageParagraphSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = BookPage
-        fields = ["id", "page_num", "chapter", "layout", "user", "utime", "paragraphs"]
+        fields = ["id", "pic_book", "page_num", "chapter", "layout", "user", "utime", "paragraphs"]
 
     def create(self, validated_data):
         paragraphs_data = validated_data.pop('paragraphs')

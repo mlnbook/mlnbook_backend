@@ -11,6 +11,8 @@ from mlnbook_backend.pic_book.serializers import PicBookSerializer, KnowledgePoi
     ChapterSerializer, LayoutTemplateSerializer, ParagraphSerializer, BookSeriesListSerializer, \
     BookSeriesCreateSerializer, BookPageSerializer, BookPageParagraphSerializer, ChapterParagraphSerializer, \
     ChapterPageSerializer, VoiceTemplateSerializer
+from mlnbook_backend.users.models import Author
+from mlnbook_backend.users.serializers import AuthorSerializer
 
 
 class VoiceTemplateViewSet(viewsets.ModelViewSet):
@@ -121,3 +123,8 @@ class IllustrationFileUploadView(APIView):
         pic_file = request.data['file']
         IllustrationFile(pic_file=pic_file, user=request.user)
         return Response(status=204)
+
+
+class AuthorViewSet(viewsets.ModelViewSet):
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
