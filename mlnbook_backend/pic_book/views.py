@@ -10,12 +10,18 @@ from mlnbook_backend.pic_book.models import PicBook, KnowledgePoint, Chapter, Pa
 from mlnbook_backend.pic_book.serializers import PicBookSerializer, KnowledgePointSerializer, \
     ChapterSerializer, LayoutTemplateSerializer, ParagraphSerializer, BookSeriesListSerializer, \
     BookSeriesCreateSerializer, BookPageSerializer, BookPageParagraphSerializer, ChapterParagraphSerializer, \
-    ChapterPageSerializer
+    ChapterPageSerializer, PicBookEditSerializer
 
 
 class PicBookViewSet(viewsets.ModelViewSet):
     queryset = PicBook.objects.all()
     serializer_class = PicBookSerializer
+
+    def get_serializer_class(self):
+        if self.action in ["create", "update", "partial_update"]:
+            return PicBookEditSerializer
+        else:
+            return PicBookSerializer
 
     @action(detail=True)
     def chapter(self, request, pk=None):

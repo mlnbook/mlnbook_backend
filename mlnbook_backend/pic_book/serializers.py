@@ -4,17 +4,27 @@ from rest_framework import serializers
 from mlnbook_backend.pic_book.models import PicBook, Chapter, BookPage, Paragraph, LayoutTemplate, \
     BookSeries, KnowledgePoint
 from mlnbook_backend.users.serializers import AuthorSerializer
+from mlnbook_backend.utils.base_serializer import AuthModelSerializer
 
 
-class PicBookSerializer(serializers.ModelSerializer):
+class PicBookSerializer(AuthModelSerializer):
     author = AuthorSerializer(many=True)
 
     class Meta:
         model = PicBook
-        fields = ['id', 'title', 'description', 'language', 'language_level', 'phase', 'grade', 'author', 'utime']
+        fields = ['id', 'title', 'description', 'language', 'language_level', 'phase', 'grade', 'author',
+                  'voice_template', 'voice_state', 'state', 'utime']
 
 
-class BookSeriesListSerializer(serializers.ModelSerializer):
+class PicBookEditSerializer(AuthModelSerializer):
+
+    class Meta:
+        model = PicBook
+        fields = ['id', 'title', 'description', 'language', 'language_level', 'phase', 'grade', 'author',
+                  'voice_template', 'voice_state', 'state']
+
+
+class BookSeriesListSerializer(AuthModelSerializer):
     pic_books = PicBookSerializer(many=True, read_only=True)
 
     class Meta:
@@ -22,7 +32,7 @@ class BookSeriesListSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'description', 'language', 'utime', 'pic_books']
 
 
-class BookSeriesCreateSerializer(serializers.ModelSerializer):
+class BookSeriesCreateSerializer(AuthModelSerializer):
     pic_books = serializers.PrimaryKeyRelatedField(many=True, queryset=PicBook.objects.all())
 
     class Meta:
@@ -30,7 +40,7 @@ class BookSeriesCreateSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'description', 'language', 'utime', 'pic_books']
 
 
-class LayoutTemplateSerializer(serializers.ModelSerializer):
+class LayoutTemplateSerializer(AuthModelSerializer):
 
     class Meta:
         model = LayoutTemplate
@@ -39,19 +49,19 @@ class LayoutTemplateSerializer(serializers.ModelSerializer):
                   "text_flex_justify", "text_flex_align", "text_opacity", "ctime", "utime"]
 
 
-class ChapterSerializer(serializers.ModelSerializer):
+class ChapterSerializer(AuthModelSerializer):
     class Meta:
         model = Chapter
         fields = ["id", "title", "text_template", "seq", "user", "utime"]
 
 
-class BookPageSerializer(serializers.ModelSerializer):
+class BookPageSerializer(AuthModelSerializer):
     class Meta:
         model = BookPage
         fields = ["id", "page_num", "pic_book", "chapter", "layout", "user", "utime"]
 
 
-class KnowledgePointSerializer(serializers.ModelSerializer):
+class KnowledgePointSerializer(AuthModelSerializer):
 
     class Meta:
         model = KnowledgePoint
@@ -59,7 +69,7 @@ class KnowledgePointSerializer(serializers.ModelSerializer):
                   "user", "ctime", "utime"]
 
 
-class ParagraphSerializer(serializers.ModelSerializer):
+class ParagraphSerializer(AuthModelSerializer):
 
     class Meta:
         model = Paragraph
@@ -67,7 +77,7 @@ class ParagraphSerializer(serializers.ModelSerializer):
                   "seq", "user", "utime"]
 
 
-class BookPageParagraphSerializer(serializers.ModelSerializer):
+class BookPageParagraphSerializer(AuthModelSerializer):
     paragraphs = ParagraphSerializer(many=True)
 
     class Meta:
@@ -82,7 +92,7 @@ class BookPageParagraphSerializer(serializers.ModelSerializer):
         return book_page
 
 
-class ChapterPageSerializer(serializers.ModelSerializer):
+class ChapterPageSerializer(AuthModelSerializer):
     bookpage_set = BookPageSerializer(many=True)
 
     class Meta:
@@ -90,7 +100,7 @@ class ChapterPageSerializer(serializers.ModelSerializer):
         fields = ["id", "title", "text_template", "seq", "user", "utime", "bookpage_set"]
 
 
-class ChapterParagraphSerializer(serializers.ModelSerializer):
+class ChapterParagraphSerializer(AuthModelSerializer):
     bookpage_set = BookPageParagraphSerializer(many=True)
 
     class Meta:
