@@ -2,7 +2,7 @@
 from rest_framework import serializers
 
 from mlnbook_backend.pic_book.models import PicBook, Chapter, BookPage, Paragraph, LayoutTemplate, \
-    BookSeries, KnowledgePoint
+    BookSeries, KnowledgePoint, VoiceTemplate
 from mlnbook_backend.users.serializers import AuthorSerializer
 from mlnbook_backend.utils.base_serializer import AuthModelSerializer
 
@@ -14,6 +14,12 @@ class PicBookSerializer(AuthModelSerializer):
         model = PicBook
         fields = ['id', 'title', 'description', 'language', 'language_level', 'phase', 'grade', 'author',
                   'voice_template', 'voice_state', 'state', 'utime']
+
+
+class VoiceTemplateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VoiceTemplate
+        fields = ['id', 'title', 'language', 'tts_model', 'model_name']
 
 
 class PicBookEditSerializer(AuthModelSerializer):
@@ -52,7 +58,7 @@ class LayoutTemplateSerializer(AuthModelSerializer):
 class ChapterSerializer(AuthModelSerializer):
     class Meta:
         model = Chapter
-        fields = ["id", "title", "text_template", "seq", "user", "utime"]
+        fields = ["id", "title", "pic_book", "text_template", "seq", "user", "utime"]
 
 
 class BookPageSerializer(AuthModelSerializer):
@@ -82,7 +88,7 @@ class BookPageParagraphSerializer(AuthModelSerializer):
 
     class Meta:
         model = BookPage
-        fields = ["id", "page_num", "chapter", "layout", "user", "utime", "paragraphs"]
+        fields = ["id", "pic_book", "page_num", "chapter", "layout", "user", "utime", "paragraphs"]
 
     def create(self, validated_data):
         paragraphs_data = validated_data.pop('paragraphs')
