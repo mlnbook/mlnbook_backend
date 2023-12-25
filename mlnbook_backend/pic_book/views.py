@@ -94,8 +94,8 @@ class ChapterViewSet(viewsets.ModelViewSet):
         """传入顺序id list;
         [{"id":21, "seq": 1},{"id": 12, "seq":2}]
         """
-        id_seq_list = self.request.data["id_list"]
-        queryset = gen_seq_queryset(id_seq_list, Chapter)
+        seq_list = self.request.data["seq_list"]
+        queryset = gen_seq_queryset(seq_list, Chapter)
         Chapter.objects.bulk_update(queryset, ["seq"])
         return Response({"detail": "更新成功"})
 
@@ -119,8 +119,8 @@ class BookPageViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def set_seq(self):
-        id_seq_list = self.request.data["id_list"]
-        queryset = gen_seq_queryset(id_seq_list, BookPage)
+        seq_list = self.request.data["seq_list"]
+        queryset = gen_seq_queryset(seq_list, BookPage)
         BookPage.objects.bulk_update(queryset, ["seq"])
         return Response({"detail": "更新成功"})
 
@@ -141,8 +141,8 @@ class ParagraphViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def set_seq(self):
-        id_seq_list = self.request.data["id_list"]
-        queryset = gen_seq_queryset(id_seq_list, Paragraph)
+        seq_list = self.request.data["seq_list"]
+        queryset = gen_seq_queryset(seq_list, Paragraph)
         Paragraph.objects.bulk_update(queryset, ["seq"])
         return Response({"detail": "更新成功"})
 
