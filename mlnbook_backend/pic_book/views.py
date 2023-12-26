@@ -121,8 +121,8 @@ class BookPageViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['post'])
     def set_seq(self):
-        page_list = self.request.data["page_list"]
-        queryset = gen_seq_queryset(page_list, BookPage)
+        seq_list = self.request.data["seq_list"]
+        queryset = gen_seq_queryset(seq_list, BookPage)
         BookPage.objects.bulk_update(queryset, ["seq"])
         return Response({"detail": "更新成功"})
 
