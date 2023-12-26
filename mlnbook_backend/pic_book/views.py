@@ -112,6 +112,17 @@ class PicBookViewSet(viewsets.ModelViewSet):
             chapter_list.append(parent_data)
         return Response(chapter_list)
 
+    @action(detail=True)
+    def page_nums(self, request, pk=None):
+        pic_book = self.get_object()
+        page_id_list = list(BookPage.objects.filter(pic_book=pic_book).values_list("id", flat=True))
+        page_num_dict = {}
+        num = 1
+        for pid in page_id_list:
+            page_num_dict[pid] = num
+            num += 1
+        return Response(page_num_dict)
+
 
 class KnowledgePointViewSet(viewsets.ModelViewSet):
     queryset = KnowledgePoint.objects.all()

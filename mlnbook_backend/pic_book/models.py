@@ -237,6 +237,7 @@ class BookPage(models.Model):
 
     class Meta:
         db_table = "mlnbook_pic_book_page"
+        ordering = ["seq"]
 
     def get_menu_key(self):
         # 前端节点唯一标识
