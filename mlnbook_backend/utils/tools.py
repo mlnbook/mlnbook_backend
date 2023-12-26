@@ -1,15 +1,12 @@
 
 
 def gen_seq_queryset(id_seq_list, model):
-    id_list = []
     id_seq_cfg = {}
-    for each in id_seq_list:
-        id_list.append(each["id"])
-        id_seq_cfg.update({each["id"]: each["seq"]})
-    queryset = model.objects.filter(id__in=id_list)
     seq = 1
-    for item in queryset:
-        item.seq = 1
+    for each in id_seq_list:
+        id_seq_cfg.update({each["id"]: seq})
         seq += 1
-        item.seq = seq
+    queryset = model.objects.filter(id__in=id_seq_list)
+    for item in queryset:
+        item.seq = id_seq_cfg[item.id]
     return queryset
