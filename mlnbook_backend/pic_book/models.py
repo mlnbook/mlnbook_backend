@@ -173,6 +173,7 @@ class Chapter(models.Model):
     text_template = models.TextField("文案模板", max_length=1000, blank=True)
     seq = models.SmallIntegerField("顺序", default=1)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    parent = models.ForeignKey('self', related_name='children', on_delete=models.CASCADE, null=True, blank=True)
     ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
 
@@ -194,6 +195,9 @@ class IllustrationFile(models.Model):
 
     def __str__(self):
         return self.pic_file
+
+    def illustration_url(self):
+        return self.pic_file.url
 
 
 class KnowledgePoint(models.Model):
@@ -225,7 +229,7 @@ class KnowledgePoint(models.Model):
 class BookPage(models.Model):
     pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
-    page_num = models.IntegerField("页码", default=1)
+    seq = models.IntegerField("页码", default=1)
     layout = models.ForeignKey(LayoutTemplate, on_delete=models.CASCADE, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_now_add=True)
@@ -235,7 +239,7 @@ class BookPage(models.Model):
         db_table = "mlnbook_pic_book_page"
 
     def __str__(self):
-        return "chapter_%s|page_%s" % (self.chapter.title, self.page_num)
+        return "chapter_%s|page_%s" % (self.chapter.title, self.seq)
 
 
 class Paragraph(models.Model):
@@ -258,6 +262,9 @@ class Paragraph(models.Model):
 
     def __str__(self):
         return self.para_content
+
+    def get_illustration_url(self):
+        return self.illustration.illustration_url()
 
 
 # class Paragraph(models.Model):
