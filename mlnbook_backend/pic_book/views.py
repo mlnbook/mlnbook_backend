@@ -15,6 +15,7 @@ from mlnbook_backend.pic_book.serializers import PicBookSerializer, KnowledgePoi
 
 from mlnbook_backend.users.models import Author
 from mlnbook_backend.users.serializers import AuthorSerializer
+from mlnbook_backend.utils.tools import gen_seq_queryset
 
 
 class VoiceTemplateViewSet(viewsets.ModelViewSet):
@@ -89,6 +90,16 @@ class ChapterViewSet(viewsets.ModelViewSet):
         serializer = BookPageParagraphSerializer(bookpage_queryset, many=True)
         return Response(serializer.data)
 
+    @action(detail=False, methods=['post'])
+    def set_seq(self):
+        """传入顺序id list;
+        [{"id":21, "seq": 1},{"id": 12, "seq":2}]
+        """
+        seq_list = self.request.data["seq_list"]
+        queryset = gen_seq_queryset(seq_list, Chapter)
+        Chapter.objects.bulk_update(queryset, ["seq"])
+        return Response({"detail": "更新成功"})
+
 
 class BookPageViewSet(viewsets.ModelViewSet):
     queryset = BookPage.objects.all()
@@ -107,6 +118,13 @@ class BookPageViewSet(viewsets.ModelViewSet):
         serializer = ParagraphSerializer(paragraph_queryset, many=True)
         return Response(serializer.data)
 
+    @action(detail=False, methods=['post'])
+    def set_seq(self):
+        seq_list = self.request.data["seq_list"]
+        queryset = gen_seq_queryset(seq_list, BookPage)
+        BookPage.objects.bulk_update(queryset, ["seq"])
+        return Response({"detail": "更新成功"})
+
 
 class ParagraphViewSet(viewsets.ModelViewSet):
     queryset = Paragraph.objects.all()
@@ -123,6 +141,13 @@ class ParagraphViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=['post'])
+    def set_seq(self):
+        seq_list = self.request.data["seq_list"]
+        queryset = gen_seq_queryset(seq_list, Paragraph)
+        Paragraph.objects.bulk_update(queryset, ["seq"])
+        return Response({"detail": "更新成功"})
 
 
 class BookSeriesViewSet(viewsets.ModelViewSet):
