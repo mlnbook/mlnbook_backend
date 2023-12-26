@@ -11,7 +11,8 @@ from mlnbook_backend.pic_book.models import PicBook, KnowledgePoint, Chapter, Pa
 from mlnbook_backend.pic_book.serializers import PicBookSerializer, KnowledgePointSerializer, \
     ChapterSerializer, LayoutTemplateSerializer, ParagraphSerializer, BookSeriesListSerializer, \
     BookSeriesCreateSerializer, BookPageSerializer, BookPageParagraphSerializer, ChapterParagraphSerializer, \
-    ChapterPageSerializer, PicBookEditSerializer, VoiceTemplateSerializer, ParagraphBulkSerializer
+    ChapterPageSerializer, PicBookEditSerializer, VoiceTemplateSerializer, ParagraphBulkSerializer, \
+    ChapterMenuSerializer, ChapterPageMenuSerializer
 
 from mlnbook_backend.users.models import Author
 from mlnbook_backend.users.serializers import AuthorSerializer
@@ -36,30 +37,80 @@ class PicBookViewSet(viewsets.ModelViewSet):
     @action(detail=True)
     def chapter(self, request, pk=None):
         pic_book = self.get_object()
-        chapter_queryset = pic_book.chapter_set.all()
-        serializer = ChapterSerializer(chapter_queryset, many=True)
-        return Response(serializer.data)
+        root_chapter_queryset = Chapter.objects.filter(pic_book=pic_book, parent__isnull=True)
+        chapter_list = []
+        for chapter_obj in root_chapter_queryset:
+            # 一层子级目录
+            parent_data = ChapterSerializer(chapter_obj).data
+            children_chapter_queryset = chapter_obj.children.all()
+            if children_chapter_queryset.exists():
+                child_serializer = ChapterSerializer(children_chapter_queryset, many=True)
+                parent_data["children"] = child_serializer.data
+            chapter_list.append(parent_data)
+        return Response(chapter_list)
 
     @action(detail=True)
     def chapter_page(self, request, pk=None):
         pic_book = self.get_object()
-        chapter_queryset = pic_book.chapter_set.all()
-        serializer = ChapterPageSerializer(chapter_queryset, many=True)
-        return Response(serializer.data)
+        root_chapter_queryset = Chapter.objects.filter(pic_book=pic_book, parent__isnull=True)
+        chapter_list = []
+        for chapter_obj in root_chapter_queryset:
+            # 一层子级目录
+            parent_data = ChapterPageSerializer(chapter_obj).data
+            children_chapter_queryset = chapter_obj.children.all()
+            if children_chapter_queryset.exists():
+                child_serializer = ChapterPageSerializer(children_chapter_queryset, many=True)
+                parent_data["children"] = child_serializer.data
+            chapter_list.append(parent_data)
+        return Response(chapter_list)
 
     @action(detail=True)
     def chapter_page_paragraph(self, request, pk=None):
         pic_book = self.get_object()
-        chapter_queryset = pic_book.chapter_set.all()
-        serializer = ChapterParagraphSerializer(chapter_queryset, many=True)
-        return Response(serializer.data)
+        root_chapter_queryset = Chapter.objects.filter(pic_book=pic_book, parent__isnull=True)
+        chapter_list = []
+        for chapter_obj in root_chapter_queryset:
+            # 一层子级目录
+            parent_data = ChapterParagraphSerializer(chapter_obj).data
+            children_chapter_queryset = chapter_obj.children.all()
+            if children_chapter_queryset.exists():
+                child_serializer = ChapterParagraphSerializer(children_chapter_queryset, many=True)
+                parent_data["children"] = child_serializer.data
+            chapter_list.append(parent_data)
+        return Response(chapter_list)
 
     @action(detail=True)
-    def page_paragraph(self, request, pk=None):
+    def chapter_page_menu(self, request, pk=None):
         pic_book = self.get_object()
-        page_queryset = pic_book.bookpage_set.all()
-        serializer = BookPageParagraphSerializer(page_queryset, many=True)
-        return Response(serializer.data)
+        root_chapter_queryset = Chapter.objects.filter(pic_book=pic_book, parent__isnull=True)
+        chapter_list = []
+        for chapter_obj in root_chapter_queryset:
+            # 一层子级目录
+            parent_data = ChapterPageMenuSerializer(chapter_obj).data
+            parent_data["children"] = parent_data.pop("bookpage_set")
+            children_chapter_queryset = chapter_obj.children.all()
+            if children_chapter_queryset.exists():
+                children_data = ChapterPageMenuSerializer(children_chapter_queryset, many=True).data
+                for item in children_data:
+                    item["children"] = item.pop("bookpage_set")
+                parent_data["children"] = children_data
+            chapter_list.append(parent_data)
+        return Response(chapter_list)
+
+    @action(detail=True)
+    def chapter_menu(self, request, pk=None):
+        pic_book = self.get_object()
+        root_chapter_queryset = Chapter.objects.filter(pic_book=pic_book, parent__isnull=True)
+        chapter_list = []
+        for chapter_obj in root_chapter_queryset:
+            # 一层子级目录
+            parent_data = ChapterMenuSerializer(chapter_obj).data
+            children_chapter_queryset = chapter_obj.children.all()
+            if children_chapter_queryset.exists():
+                children_data = ChapterMenuSerializer(children_chapter_queryset, many=True).data
+                parent_data["children"] = children_data
+            chapter_list.append(parent_data)
+        return Response(chapter_list)
 
 
 class KnowledgePointViewSet(viewsets.ModelViewSet):
