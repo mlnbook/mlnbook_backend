@@ -56,15 +56,17 @@ class LayoutTemplateSerializer(AuthModelSerializer):
 
 
 class ChapterSerializer(AuthModelSerializer):
+    key = serializers.CharField(source='gen_key')
+
     class Meta:
         model = Chapter
-        fields = ["id", "title", "pic_book", "text_template", "seq", "utime"]
+        fields = ["id", "key", "title", "pic_book", "text_template", "seq", "utime"]
 
 
 class BookPageSerializer(AuthModelSerializer):
     class Meta:
         model = BookPage
-        fields = ["id", "page_num", "pic_book", "chapter", "layout", "utime"]
+        fields = ["id", "seq", "pic_book", "chapter", "layout", "utime"]
 
 
 class KnowledgePointSerializer(AuthModelSerializer):
@@ -104,7 +106,7 @@ class BookPageParagraphSerializer(AuthModelSerializer):
 
     class Meta:
         model = BookPage
-        fields = ["id", "pic_book", "page_num", "chapter", "layout", "utime", "paragraphs"]
+        fields = ["id", "pic_book", "seq", "chapter", "layout", "utime", "paragraphs"]
 
     def create(self, validated_data):
         paragraphs_data = validated_data.pop('paragraphs')
@@ -128,3 +130,31 @@ class ChapterParagraphSerializer(AuthModelSerializer):
     class Meta:
         model = Chapter
         fields = ["id", "title", "text_template", "seq", "utime", "bookpage_set"]
+
+
+class PageMenuSerializer(serializers.ModelSerializer):
+    key = serializers.CharField(source="get_menu_key")
+    parent = serializers.IntegerField(source="get_parent")
+    title = serializers.CharField(source="get_title")
+    isLeaf = serializers.BooleanField(default=True, read_only=True)
+
+    class Meta:
+        model = BookPage
+        fields = ["id", "key", "title", "isLeaf", "parent", "seq"]
+
+
+class ChapterPageMenuSerializer(serializers.ModelSerializer):
+    key = serializers.IntegerField(source="id")
+    bookpage_set = PageMenuSerializer(many=True)
+
+    class Meta:
+        model = Chapter
+        fields = ["key", "title", "seq", "parent", "bookpage_set"]
+
+
+class ChapterMenuSerializer(serializers.ModelSerializer):
+    key = serializers.IntegerField(source="id")
+
+    class Meta:
+        model = Chapter
+        fields = ["key", "title", "seq", "parent"]
