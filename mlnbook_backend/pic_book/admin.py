@@ -27,7 +27,7 @@ class ChapterAdmin(admin.ModelAdmin):
 
 @admin.register(BookPage)
 class BookPageAdmin(admin.ModelAdmin):
-    list_display = ["id", "page_num", "pic_book", "chapter", "layout", "ctime"]
+    list_display = ["id", "seq", "pic_book", "chapter", "layout", "ctime"]
     search_fields = ["pic_book__title"]
 
 
