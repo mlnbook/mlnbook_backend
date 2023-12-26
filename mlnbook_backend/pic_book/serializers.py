@@ -12,7 +12,7 @@ class PicBookSerializer(AuthModelSerializer):
 
     class Meta:
         model = PicBook
-        fields = ['id', 'title', 'description', 'language', 'language_level', 'phase', 'grade', 'author',
+        fields = ['id', 'title', 'description', 'language', 'language_level', 'phase', 'grade', 'cover_img', 'author',
                   'voice_template', 'voice_state', 'state', 'utime']
 
 
@@ -26,7 +26,7 @@ class PicBookEditSerializer(AuthModelSerializer):
 
     class Meta:
         model = PicBook
-        fields = ['id', 'title', 'description', 'language', 'language_level', 'phase', 'grade', 'author',
+        fields = ['id', 'title', 'description', 'language', 'language_level', 'phase', 'grade', 'cover_img', 'author',
                   'voice_template', 'voice_state', 'state']
 
 
