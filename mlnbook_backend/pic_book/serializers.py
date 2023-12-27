@@ -56,11 +56,10 @@ class LayoutTemplateSerializer(AuthModelSerializer):
 
 
 class ChapterSerializer(AuthModelSerializer):
-    key = serializers.CharField(source='gen_key')
 
     class Meta:
         model = Chapter
-        fields = ["id", "key", "title", "pic_book", "text_template", "seq", "utime"]
+        fields = ["id", "parent", "title", "pic_book", "text_template", "seq", "utime"]
 
 
 class BookPageSerializer(AuthModelSerializer):
@@ -70,11 +69,12 @@ class BookPageSerializer(AuthModelSerializer):
 
 
 class KnowledgePointSerializer(AuthModelSerializer):
+    illustration_url = serializers.CharField(source='get_illustration_url', read_only=True)
 
     class Meta:
         model = KnowledgePoint
         fields = ["id", "knowledge_uniq", "knowledge", "language", "language_level", "phase", "grade", "pic_style",
-                  "ctime", "utime"]
+                  "illustration_url", "ctime", "utime"]
 
 
 class ParagraphSerializer(AuthModelSerializer):
