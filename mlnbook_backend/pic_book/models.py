@@ -241,7 +241,7 @@ class BookPage(models.Model):
 
     def get_menu_key(self):
         # 前端节点唯一标识
-        return "page_%s" % self.id
+        return "leaf_%s" % self.id
 
     def get_title(self):
         return "page_%s" % self.seq
