@@ -4,7 +4,6 @@ from rest_framework.decorators import action
 from rest_framework.parsers import FileUploadParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django_filters.rest_framework import DjangoFilterBackend
 
 from mlnbook_backend.pic_book.models import PicBook, KnowledgePoint, Chapter, Paragraph, \
     BookSeries, IllustrationFile, LayoutTemplate, BookPage, VoiceTemplate
@@ -192,7 +191,6 @@ class BookPageViewSet(viewsets.ModelViewSet):
 class ParagraphViewSet(viewsets.ModelViewSet):
     queryset = Paragraph.objects.all()
     serializer_class = ParagraphSerializer
-    filter_backends = [DjangoFilterBackend]
     filterset_fields = ['pic_book', 'chapter']
 
     @action(detail=False, methods=["post"])
