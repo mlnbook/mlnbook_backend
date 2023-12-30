@@ -225,10 +225,10 @@ class BookSeriesViewSet(viewsets.ModelViewSet):
 class IllustrationFileUploadView(APIView):
     parser_classes = [FileUploadParser]
 
-    def put(self, request, filename, format=None):
+    def post(self, request, filename, format=None):
         pic_file = request.data['file']
         IllustrationFile(pic_file=pic_file, user=request.user)
-        return Response(status=204)
+        return Response({"detail": "success"})
 
 
 class AuthorViewSet(viewsets.ModelViewSet):
