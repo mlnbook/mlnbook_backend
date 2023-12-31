@@ -149,7 +149,7 @@ class ChapterPageMenuSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Chapter
-        fields = ["key", "title", "seq", "parent", "bookpage_set"]
+        fields = ["id", "key", "title", "seq", "parent", "bookpage_set"]
 
 
 class ChapterMenuSerializer(serializers.ModelSerializer):

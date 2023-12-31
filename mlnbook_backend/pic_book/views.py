@@ -79,7 +79,8 @@ class PicBookViewSet(viewsets.ModelViewSet):
             chapter_list.append(parent_data)
         return Response(chapter_list)
 
-    def gen_chapter_page_menu(self, root_chapter_queryset):
+    @staticmethod
+    def gen_chapter_page_menu(root_chapter_queryset):
         chapter_list = []
         for chapter_obj in root_chapter_queryset:
             # 当前仅支持一层子级目录
