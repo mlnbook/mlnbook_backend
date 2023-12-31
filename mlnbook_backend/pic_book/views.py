@@ -12,7 +12,7 @@ from mlnbook_backend.pic_book.serializers import PicBookSerializer, KnowledgePoi
     ChapterSerializer, LayoutTemplateSerializer, ParagraphSerializer, BookSeriesListSerializer, \
     BookSeriesCreateSerializer, BookPageSerializer, BookPageParagraphSerializer, ChapterParagraphSerializer, \
     ChapterPageSerializer, PicBookEditSerializer, VoiceTemplateSerializer, ParagraphBulkSerializer, \
-    ChapterMenuSerializer, ChapterPageMenuSerializer
+    ChapterMenuSerializer, ChapterPageMenuSerializer, IllustrationFileSerializer
 
 from mlnbook_backend.users.models import Author
 from mlnbook_backend.users.serializers import AuthorSerializer
@@ -189,11 +189,11 @@ class BookPageViewSet(viewsets.ModelViewSet):
     queryset = BookPage.objects.all()
     serializer_class = BookPageSerializer
 
-    def get_serializer_class(self):
-        if self.action in ["create", "list", "retrieve"]:
-            return BookPageParagraphSerializer
-        else:
-            return BookPageSerializer
+    # def get_serializer_class(self):
+    #     if self.action in ["create", "list", "retrieve"]:
+    #         return BookPageParagraphSerializer
+    #     else:
+    #         return BookPageSerializer
 
     @action(detail=True)
     def paragraph(self, request, pk=None):
@@ -226,7 +226,7 @@ class ParagraphViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['post'])
-    def set_seq(self):
+    def set_seq(self, request, *args, **kwargs):
         seq_list = self.request.data["seq_list"]
         queryset = gen_seq_queryset(seq_list, Paragraph)
         Paragraph.objects.bulk_update(queryset, ["seq"])
@@ -244,14 +244,19 @@ class BookSeriesViewSet(viewsets.ModelViewSet):
             return BookSeriesCreateSerializer
 
 
-class IllustrationFileUploadView(APIView):
-    parser_classes = [FileUploadParser]
-    permission_classes = [IsAuthenticated]
+# class IllustrationFileUploadView(APIView):
+#     parser_classes = [FileUploadParser]
+#     permission_classes = [IsAuthenticated]
+#
+#     def post(self, request, filename, format=None):
+#         pic_file = request.data['file']
+#         IllustrationFile(pic_file=pic_file, user=request.user)
+#         return Response({"detail": "success"})
 
-    def post(self, request, filename, format=None):
-        pic_file = request.data['file']
-        IllustrationFile(pic_file=pic_file, user=request.user)
-        return Response({"detail": "success"})
+class IllustrationFileUploadView(viewsets.ModelViewSet):
+    # parser_classes = [FileUploadParser]
+    serializer_class = IllustrationFileSerializer
+    queryset = IllustrationFile.objects.all()
 
 
 class AuthorViewSet(viewsets.ModelViewSet):

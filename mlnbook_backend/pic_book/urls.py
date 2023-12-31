@@ -17,8 +17,11 @@ router.register('book_series', BookSeriesViewSet)
 router.register('voice_template', VoiceTemplateViewSet)
 router.register('author', AuthorViewSet)
 
+router.register('pic_upload', IllustrationFileUploadView)
+
+
 urlpatterns = [
-    re_path(r'^pic_upload/(?P<filename>[^/]+)$', IllustrationFileUploadView.as_view())
+    # re_path(r'^pic_upload/(?P<filename>[^/]+)$', IllustrationFileUploadView.as_view())
 ]
 
 urlpatterns += router.urls
