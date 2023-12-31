@@ -66,7 +66,7 @@ class VoiceTemplate(models.Model):
         db_table = "mlnbook_pic_book_voice_template"
 
     def __str__(self):
-        return self.title
+        return "%s|%s" % (self.id, self.title)
 
 
 class PicBook(models.Model):
@@ -91,7 +91,7 @@ class PicBook(models.Model):
         db_table = "mlnbook_pic_book_pic_books"
 
     def __str__(self):
-        return self.title
+        return "%s|%s" % (self.id, self.title)
 
 
 class BookSeries(models.Model):
@@ -109,7 +109,7 @@ class BookSeries(models.Model):
         db_table = "mlnbook_pic_book_book_series"
 
     def __str__(self):
-        return self.title
+        return "%s|%s" % (self.id, self.title)
 
 
 class LayoutTemplate(models.Model):
@@ -164,7 +164,7 @@ class LayoutTemplate(models.Model):
         db_table = "mlnbook_pic_book_layout_template"
 
     def __str__(self):
-        return self.title
+        return "%s|%s" % (self.id, self.title)
 
 
 class Chapter(models.Model):
@@ -179,9 +179,10 @@ class Chapter(models.Model):
 
     class Meta:
         db_table = "mlnbook_pic_book_chapter"
+        ordering = ["seq"]
 
     def __str__(self):
-        return self.title
+        return "%s|%s" % (self.id, self.title)
 
 
 class IllustrationFile(models.Model):
@@ -220,7 +221,7 @@ class KnowledgePoint(models.Model):
         unique_together = ["knowledge_uniq", "pic_style", "language"]
 
     def __str__(self):
-        return self.knowledge
+        return "%s|%s" % (self.id, self.knowledge)
 
     def illustration_url(self):
         return self.illustration.pic_file.url
@@ -229,7 +230,7 @@ class KnowledgePoint(models.Model):
 class BookPage(models.Model):
     pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
-    seq = models.IntegerField("页码顺序", default=1, db_index=True)
+    seq = models.IntegerField("页码顺序", default=1, db_index=True, help_text="当前为章节内部排序")
     layout = models.ForeignKey(LayoutTemplate, on_delete=models.CASCADE, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_now_add=True)
@@ -273,7 +274,7 @@ class Paragraph(models.Model):
         ordering = ["seq"]
 
     def __str__(self):
-        return self.para_content
+        return "%s|%s" % (self.id, self.para_content)
 
     def get_illustration_url(self):
         if self.illustration:

@@ -79,22 +79,29 @@ class PicBookViewSet(viewsets.ModelViewSet):
             chapter_list.append(parent_data)
         return Response(chapter_list)
 
-    @action(detail=True)
-    def chapter_page_menu(self, request, pk=None):
-        pic_book = self.get_object()
-        root_chapter_queryset = Chapter.objects.filter(pic_book=pic_book, parent__isnull=True)
+    def gen_chapter_page_menu(self, root_chapter_queryset):
         chapter_list = []
         for chapter_obj in root_chapter_queryset:
-            # 一层子级目录
-            parent_data = ChapterPageMenuSerializer(chapter_obj).data
-            parent_data["children"] = parent_data.pop("bookpage_set")
+            # 当前仅支持一层子级目录
+            chapter_page_data = ChapterPageMenuSerializer(chapter_obj).data
+            chapter_page_data["children"] = chapter_page_data.pop("bookpage_set")
             children_chapter_queryset = chapter_obj.children.all()
+            # print(chapter_obj.id, chapter_page_data["children"])
             if children_chapter_queryset.exists():
                 children_data = ChapterPageMenuSerializer(children_chapter_queryset, many=True).data
                 for item in children_data:
                     item["children"] = item.pop("bookpage_set")
-                parent_data["children"] = children_data
-            chapter_list.append(parent_data)
+                chapter_page_data["children"] += children_data
+                # print(chapter_obj.id, children_data)
+            sorted_data = sorted(chapter_page_data["children"], key=lambda x: x['seq'])
+            chapter_list.append(sorted_data)
+        return chapter_list
+
+    @action(detail=True)
+    def chapter_page_menu(self, request, pk=None):
+        pic_book = self.get_object()
+        root_chapter_queryset = Chapter.objects.filter(pic_book=pic_book, parent__isnull=True)
+        chapter_list = self.gen_chapter_page_menu(root_chapter_queryset)
         return Response(chapter_list)
 
     @action(detail=True)
@@ -115,12 +122,26 @@ class PicBookViewSet(viewsets.ModelViewSet):
     @action(detail=True)
     def page_nums(self, request, pk=None):
         pic_book = self.get_object()
-        page_id_list = list(BookPage.objects.filter(pic_book=pic_book).values_list("id", flat=True))
+        chapter_queryset = Chapter.objects.filter(pic_book=pic_book)
+        has_parent_chapter = chapter_queryset.exclude(parent__isnull=True)
         page_num_dict = {}
-        num = 1
-        for pid in page_id_list:
-            page_num_dict[pid] = num
-            num += 1
+        if not has_parent_chapter.exists():
+            # 没有子章嵌套直接排序
+            page_id_list = list(BookPage.objects.filter(pic_book=pic_book).values_list("id", flat=True))
+            for num, val in enumerate(page_id_list, start=1):
+                page_num_dict[val] = num
+        else:
+            # 存在子章嵌套
+            parent_chapter_queryset = chapter_queryset.filter(parent__isnull=True)
+            chapter_list = self.gen_chapter_page_menu(parent_chapter_queryset)
+            page_id_list = []
+            for page_child_list in chapter_list:
+                for item in page_child_list:
+                    if "isLeaf" in item:
+                        page_id_list.append(item)
+                    else:
+                        page_id_list.extend(item["children"])
+            page_num_dict = {each["id"]: each["seq"] for each in page_id_list}
         return Response(page_num_dict)
 
 
