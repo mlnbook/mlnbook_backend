@@ -22,4 +22,4 @@ router.register('author', AuthorViewSet)
 #     # re_path(r'^pic_upload/(?P<filename>[^/]+)$', IllustrationFileUploadView.as_view())
 # ]
 # 
-# urlpatterns += router.urls
+urlpatterns = router.urls
