@@ -7,27 +7,27 @@ from mlnbook_backend.pic_book.models import BookSeries, PicBook, Chapter, Layout
 
 @admin.register(PicBook)
 class PicBookAdmin(admin.ModelAdmin):
-    list_display = ["title", "description", "language", "language_level", "phase", "grade", "user", "ctime"]
+    list_display = ["id", "title", "description", "language", "language_level", "phase", "grade", "user", "ctime"]
     search_fields = ["title"]
     list_filter = ["language", "language_level", "phase"]
 
 
 @admin.register(BookSeries)
 class BookSeriesAdmin(admin.ModelAdmin):
-    list_display = ["title", "description", "language", "user", "share_state", "ctime"]
+    list_display = ["id", "title", "description", "language", "user", "share_state", "ctime"]
     search_fields = ["title"]
     list_filter = ["share_state", "language"]
 
 
 @admin.register(Chapter)
 class ChapterAdmin(admin.ModelAdmin):
-    list_display = ["id", "title", "text_template", "user", "ctime"]
+    list_display = ["id", "pic_book", "title", "text_template", "user", "ctime"]
     search_fields = ["title"]
 
 
 @admin.register(BookPage)
 class BookPageAdmin(admin.ModelAdmin):
-    list_display = ["id", "page_num", "pic_book", "chapter", "layout", "ctime"]
+    list_display = ["id", "seq", "pic_book", "chapter", "layout", "ctime"]
     search_fields = ["pic_book__title"]
 
 
@@ -40,14 +40,14 @@ class LayoutTemplateAdmin(admin.ModelAdmin):
 
 @admin.register(KnowledgePoint)
 class KnowledgePointAdmin(admin.ModelAdmin):
-    list_display = ["knowledge_uniq", "knowledge", "language", "language_level", "phase", "grade", "user", "ctime"]
+    list_display = ["id", "knowledge_uniq", "knowledge", "language", "language_level", "phase", "grade", "user", "ctime"]
     search_fields = ["knowledge"]
     list_filter = ["language", "language_level", "phase"]
 
 
 @admin.register(Paragraph)
 class ParagraphAdmin(admin.ModelAdmin):
-    list_display = ["para_content_uniq", "book_page", "knowledge_point", "para_content",
+    list_display = ["id", "para_content_uniq", "book_page", "knowledge_point", "para_content",
                     "seq", "user", "ctime"]
     search_fields = ["para_content"]
 

@@ -89,6 +89,7 @@ THIRD_PARTY_APPS = [
     "corsheaders",
     "drf_spectacular",
     "taggit",
+    "django_filters",
 ]
 
 LOCAL_APPS = [
@@ -325,11 +326,13 @@ SOCIALACCOUNT_FORMS = {"signup": "mlnbook_backend.users.forms.UserSocialSignupFo
 # django-rest-framework - https://www.django-rest-framework.org/api-guide/settings/
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.SessionAuthentication",
         "rest_framework.authentication.TokenAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
 
 # django-cors-headers - https://github.com/adamchainz/django-cors-headers#setup

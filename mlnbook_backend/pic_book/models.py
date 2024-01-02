@@ -66,7 +66,7 @@ class VoiceTemplate(models.Model):
         db_table = "mlnbook_pic_book_voice_template"
 
     def __str__(self):
-        return self.title
+        return "%s|%s" % (self.id, self.title)
 
 
 class PicBook(models.Model):
@@ -91,7 +91,7 @@ class PicBook(models.Model):
         db_table = "mlnbook_pic_book_pic_books"
 
     def __str__(self):
-        return self.title
+        return "%s|%s" % (self.id, self.title)
 
 
 class BookSeries(models.Model):
@@ -109,7 +109,7 @@ class BookSeries(models.Model):
         db_table = "mlnbook_pic_book_book_series"
 
     def __str__(self):
-        return self.title
+        return "%s|%s" % (self.id, self.title)
 
 
 class LayoutTemplate(models.Model):
@@ -164,23 +164,25 @@ class LayoutTemplate(models.Model):
         db_table = "mlnbook_pic_book_layout_template"
 
     def __str__(self):
-        return self.title
+        return "%s|%s" % (self.id, self.title)
 
 
 class Chapter(models.Model):
     pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
     title = models.CharField("标题", max_length=200)
     text_template = models.TextField("文案模板", max_length=1000, blank=True)
-    seq = models.SmallIntegerField("顺序", default=1)
+    seq = models.SmallIntegerField("顺序", default=1, db_index=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    parent = models.ForeignKey("self", related_name="children", on_delete=models.CASCADE, null=True, blank=True)
     ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = "mlnbook_pic_book_chapter"
+        ordering = ["seq"]
 
     def __str__(self):
-        return self.title
+        return "%s|%s" % (self.id, self.title)
 
 
 class IllustrationFile(models.Model):
@@ -194,6 +196,9 @@ class IllustrationFile(models.Model):
 
     def __str__(self):
         return self.pic_file
+
+    def illustration_url(self):
+        return self.pic_file.url
 
 
 class KnowledgePoint(models.Model):
@@ -216,7 +221,7 @@ class KnowledgePoint(models.Model):
         unique_together = ["knowledge_uniq", "pic_style", "language"]
 
     def __str__(self):
-        return self.knowledge
+        return "%s|%s" % (self.id, self.knowledge)
 
     def illustration_url(self):
         return self.illustration.pic_file.url
@@ -225,7 +230,7 @@ class KnowledgePoint(models.Model):
 class BookPage(models.Model):
     pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
-    page_num = models.IntegerField("页码", default=1)
+    seq = models.IntegerField("页码顺序", default=1, db_index=True, help_text="当前为章节内部排序")
     layout = models.ForeignKey(LayoutTemplate, on_delete=models.CASCADE, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_now_add=True)
@@ -233,9 +238,20 @@ class BookPage(models.Model):
 
     class Meta:
         db_table = "mlnbook_pic_book_page"
+        ordering = ["seq"]
+
+    def get_menu_key(self):
+        # 前端节点唯一标识
+        return "leaf_%s" % self.id
+
+    def get_title(self):
+        return "page_%s" % self.seq
+
+    def get_parent(self):
+        return self.chapter_id
 
     def __str__(self):
-        return "chapter_%s|page_%s" % (self.chapter.title, self.page_num)
+        return "chapter_%s|page_%s" % (self.chapter.title, self.seq)
 
 
 class Paragraph(models.Model):
@@ -246,7 +262,7 @@ class Paragraph(models.Model):
     para_content_uniq = models.CharField("段落内容唯一标识", max_length=64, help_text="content文本MD5加密")
     knowledge_point = models.ForeignKey(KnowledgePoint, on_delete=models.CASCADE, null=True, blank=True)
     illustration = models.ForeignKey(IllustrationFile, on_delete=models.CASCADE, null=True, blank=True)
-    seq = models.SmallIntegerField("页内段落排序", default=1)
+    seq = models.SmallIntegerField("页内段落排序", default=1, db_index=True)
     # 单页模式，过滤pic_book，按照 page_num + page_para_seq 排序，一个个返回。
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_now_add=True)
@@ -255,9 +271,16 @@ class Paragraph(models.Model):
     class Meta:
         db_table = "mlnbook_pic_book_paragraph"
         unique_together = ["book_page", "para_content_uniq"]
+        ordering = ["seq"]
 
     def __str__(self):
-        return self.para_content
+        return "%s|%s" % (self.id, self.para_content)
+
+    def get_illustration_url(self):
+        if self.illustration:
+            return self.illustration.illustration_url()
+        else:
+            return ""
 
 
 # class Paragraph(models.Model):
