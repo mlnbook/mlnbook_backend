@@ -145,6 +145,37 @@ class PicBookViewSet(viewsets.ModelViewSet):
             page_num_dict = {each["id"]: each["seq"] for each in page_id_list}
         return Response(page_num_dict)
 
+    @staticmethod
+    def update_menu_attr(cur_key, attr_value, attr="sort_seq"):
+        if "leaf" in str(cur_key):
+            obj_id = int(cur_key.split("_")[1])
+            obj = BookPage.objects.get(id=obj_id)
+            if attr == "sort_seq":
+                setattr(obj, "seq", attr_value)
+            else:
+                setattr(obj, "chapter_id", attr_value)
+            obj.save()
+        else:
+            obj = Chapter.objects.get(id=int(cur_key))
+            if attr == "sort_seq":
+                setattr(obj, "seq", attr_value)
+            else:
+                setattr(obj, "parent_id", attr_value)
+            obj.save()
+
+    @action(detail=False, methods=['post'])
+    def sort_menu(self, request, pk=None):
+        # 上传 node 的当前父节点； node需要知道是否是 isLeaf 叶子节点；更新父节点
+        sort_key = request.data["sort_key"]
+        target_parent = request.data["target_parent"]
+        self.update_menu_attr(sort_key, target_parent, "parent")
+        # 上传当前父节点的 子节点，包括子目录和叶子节点；对同一个parent的节点更新排序
+        target_children = request.data["target_children"]
+        for ind in range(len(target_children)):
+            cur_key = target_children[ind]
+            self.update_menu_attr(cur_key, ind)
+        return Response({"detail": "success"})
+
 
 class KnowledgePointViewSet(viewsets.ModelViewSet):
     queryset = KnowledgePoint.objects.all()
