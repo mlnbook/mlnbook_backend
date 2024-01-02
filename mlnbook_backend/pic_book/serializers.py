@@ -96,8 +96,11 @@ class ParagraphBulkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Paragraph
         fields = ["id", "para_content_uniq", "book_page", "knowledge_point", "para_content", "illustration",
+                  "seq", "utime"]
+        read_only_fields = ['id', ]
+        list_serializer_class = ParagraphBulkCreateUpdateSerializer
 
-                  
+
 class BookPageParagraphSerializer(AuthModelSerializer):
     paragraphs = ParagraphSerializer(many=True)
 
