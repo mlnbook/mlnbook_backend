@@ -69,21 +69,33 @@ class BookPageSerializer(AuthModelSerializer):
 
 
 class KnowledgePointSerializer(AuthModelSerializer):
-    illustration_url = serializers.CharField(source='get_illustration_url', read_only=True)
+    illustration_url = serializers.SerializerMethodField(method_name='get_illustration_url', read_only=True)
 
     class Meta:
         model = KnowledgePoint
         fields = ["id", "knowledge_uniq", "knowledge", "language", "language_level", "phase", "grade", "pic_style",
                   "illustration_url", "ctime", "utime"]
 
+    def get_illustration_url(self):
+        if self.illustration:
+            return self.request.build_absolute_uri(self.illustration.illustration_url())
+        else:
+            return ""
+
 
 class ParagraphSerializer(AuthModelSerializer):
-    illustration_url = serializers.CharField(source='get_illustration_url', read_only=True)
+    illustration_url = serializers.SerializerMethodField(method_name='get_illustration_url', read_only=True)
 
     class Meta:
         model = Paragraph
         fields = ["id", "pic_book", "chapter", "para_content_uniq", "book_page", "knowledge_point", "para_content", "illustration",
                   "illustration_url", "seq", "utime"]
+
+    def get_illustration_url(self):
+        if self.illustration:
+            return self.request.build_absolute_uri(self.illustration.illustration_url())
+        else:
+            return ""
 
 
 class ParagraphBulkCreateUpdateSerializer(serializers.ListSerializer):
