@@ -94,7 +94,8 @@ class PicBookViewSet(viewsets.ModelViewSet):
                 chapter_page_data["children"] += children_data
                 # print(chapter_obj.id, children_data)
             sorted_data = sorted(chapter_page_data["children"], key=lambda x: x['seq'])
-            chapter_list.append(sorted_data)
+            chapter_page_data["children"] = sorted_data
+            chapter_list.append(chapter_page_data)
         return chapter_list
 
     @action(detail=True)
