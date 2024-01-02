@@ -185,20 +185,17 @@ class Chapter(models.Model):
         return "%s|%s" % (self.id, self.title)
 
 
-class IllustrationFile(models.Model):
-    pic_file = models.ImageField("插图", upload_to="pic_books/illustration/", null=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    ctime = models.DateTimeField(auto_now_add=True)
-    utime = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        db_table = "mlnbook_pic_book_illustration_file"
-
-    def __str__(self):
-        return self.pic_file
-
-    def illustration_url(self):
-        return self.pic_file.url
+# class IllustrationFile(models.Model):
+#     pic_file = models.ImageField("插图", upload_to="pic_books/illustration/", null=True)
+#     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+#     ctime = models.DateTimeField(auto_now_add=True)
+#     utime = models.DateTimeField(auto_now=True)
+#
+#     class Meta:
+#         db_table = "mlnbook_pic_book_illustration_file"
+#
+#     def __str__(self):
+#         return self.pic_file.url
 
 
 class KnowledgePoint(models.Model):
@@ -209,7 +206,7 @@ class KnowledgePoint(models.Model):
     tags = TaggableManager(blank=True)
     phase = models.CharField("学段", max_length=20, choices=PHASE_LEVEL, default="preschool")
     grade = models.CharField("年级", max_length=30, choices=GRADE_LEVEL, default="1t2-preschool")
-    illustration = models.ForeignKey(IllustrationFile, on_delete=models.CASCADE, null=True, blank=True)
+    illustration = models.ImageField("插图", max_length=500, blank=True, null=True)
     # voice_template = models.ForeignKey(VoiceTemplate, on_delete=models.CASCADE, null=True)
     pic_style = models.CharField("图片风格", max_length=20, default="realistic")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -224,7 +221,7 @@ class KnowledgePoint(models.Model):
         return "%s|%s" % (self.id, self.knowledge)
 
     def illustration_url(self):
-        return self.illustration.pic_file.url
+        return self.illustration.url
 
 
 class BookPage(models.Model):
@@ -261,7 +258,7 @@ class Paragraph(models.Model):
     para_content = models.TextField("段落内容", help_text="段落内容；一般基于知识点+章节复合生成")
     para_content_uniq = models.CharField("段落内容唯一标识", max_length=64, help_text="content文本MD5加密")
     knowledge_point = models.ForeignKey(KnowledgePoint, on_delete=models.CASCADE, null=True, blank=True)
-    illustration = models.ForeignKey(IllustrationFile, on_delete=models.CASCADE, null=True, blank=True)
+    illustration = models.ImageField("插图", max_length=500, blank=True, null=True)
     seq = models.SmallIntegerField("页内段落排序", default=1, db_index=True)
     # 单页模式，过滤pic_book，按照 page_num + page_para_seq 排序，一个个返回。
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -275,12 +272,6 @@ class Paragraph(models.Model):
 
     def __str__(self):
         return "%s|%s" % (self.id, self.para_content)
-
-    def get_illustration_url(self):
-        if self.illustration:
-            return self.illustration.illustration_url()
-        else:
-            return ""
 
 
 # class Paragraph(models.Model):
