@@ -2,7 +2,7 @@
 from rest_framework import serializers
 
 from mlnbook_backend.pic_book.models import PicBook, Chapter, BookPage, Paragraph, LayoutTemplate, \
-    BookSeries, KnowledgePoint, VoiceTemplate, IllustrationFile
+    BookSeries, KnowledgePoint, VoiceTemplate
 from mlnbook_backend.users.serializers import AuthorSerializer
 from mlnbook_backend.utils.base_serializer import AuthModelSerializer
 
@@ -69,33 +69,19 @@ class BookPageSerializer(AuthModelSerializer):
 
 
 class KnowledgePointSerializer(AuthModelSerializer):
-    illustration_url = serializers.SerializerMethodField(method_name='get_illustration_url', read_only=True)
 
     class Meta:
         model = KnowledgePoint
         fields = ["id", "knowledge_uniq", "knowledge", "language", "language_level", "phase", "grade", "pic_style",
-                  "illustration_url", "ctime", "utime"]
-
-    def get_illustration_url(self):
-        if self.illustration:
-            return self.request.build_absolute_uri(self.illustration.illustration_url())
-        else:
-            return ""
+                  "illustration", "ctime", "utime"]
 
 
 class ParagraphSerializer(AuthModelSerializer):
-    illustration_url = serializers.SerializerMethodField(method_name='get_illustration_url', read_only=True)
 
     class Meta:
         model = Paragraph
-        fields = ["id", "pic_book", "chapter", "para_content_uniq", "book_page", "knowledge_point", "para_content", "illustration",
-                  "illustration_url", "seq", "utime"]
-
-    def get_illustration_url(self):
-        if self.illustration:
-            return self.request.build_absolute_uri(self.illustration.illustration_url())
-        else:
-            return ""
+        fields = ["id", "pic_book", "chapter", "para_content_uniq", "book_page", "knowledge_point",
+                  "para_content", "illustration", "seq", "utime"]
 
 
 class ParagraphBulkCreateUpdateSerializer(serializers.ListSerializer):
@@ -170,9 +156,3 @@ class ChapterMenuSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chapter
         fields = ["key", "title", "seq", "parent"]
-
-
-class IllustrationFileSerializer(AuthModelSerializer):
-    class Meta:
-        model = IllustrationFile
-        fields = ["id", "pic_file", "ctime", "utime"]
