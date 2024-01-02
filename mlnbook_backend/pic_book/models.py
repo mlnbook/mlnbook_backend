@@ -242,7 +242,7 @@ class BookPage(models.Model):
         return "leaf_%s" % self.id
 
     def get_title(self):
-        return "page_%s" % self.seq
+        return "PageID_%s" % self.id
 
     def get_parent(self):
         return self.chapter_id
