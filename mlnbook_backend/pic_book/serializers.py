@@ -69,21 +69,19 @@ class BookPageSerializer(AuthModelSerializer):
 
 
 class KnowledgePointSerializer(AuthModelSerializer):
-    illustration_url = serializers.CharField(source='get_illustration_url', read_only=True)
 
     class Meta:
         model = KnowledgePoint
         fields = ["id", "knowledge_uniq", "knowledge", "language", "language_level", "phase", "grade", "pic_style",
-                  "illustration_url", "ctime", "utime"]
+                  "illustration", "ctime", "utime"]
 
 
 class ParagraphSerializer(AuthModelSerializer):
-    illustration_url = serializers.CharField(source='get_illustration_url', read_only=True)
 
     class Meta:
         model = Paragraph
-        fields = ["id", "para_content_uniq", "book_page", "knowledge_point", "para_content", "illustration",
-                  "illustration_url", "seq", "utime"]
+        fields = ["id", "pic_book", "chapter", "para_content_uniq", "book_page", "knowledge_point",
+                  "para_content", "illustration", "seq", "utime"]
 
 
 class ParagraphBulkCreateUpdateSerializer(serializers.ListSerializer):

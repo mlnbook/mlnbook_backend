@@ -2,7 +2,7 @@
 from django.contrib import admin
 
 from mlnbook_backend.pic_book.models import BookSeries, PicBook, Chapter, LayoutTemplate, BookPage, \
-    KnowledgePoint, Paragraph, KnowledgeVoiceFile, ParagraphVoiceFile, IllustrationFile, VoiceTemplate
+    KnowledgePoint, Paragraph, KnowledgeVoiceFile, ParagraphVoiceFile, VoiceTemplate
 
 
 @admin.register(PicBook)
@@ -66,10 +66,10 @@ class KnowledgeVoiceFileAdmin(admin.ModelAdmin):
     search_fields = ["knowledge_uniq"]
 
 
-@admin.register(IllustrationFile)
-class IllustrationFileAdmin(admin.ModelAdmin):
-    list_display = ["id", "pic_file", "ctime", "utime"]
-    search_fields = ["id", ]
+# @admin.register(IllustrationFile)
+# class IllustrationFileAdmin(admin.ModelAdmin):
+#     list_display = ["id", "pic_file", "ctime", "utime"]
+#     search_fields = ["id", ]
 
 
 @admin.register(VoiceTemplate)
