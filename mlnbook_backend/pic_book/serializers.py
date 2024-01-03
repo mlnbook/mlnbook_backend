@@ -72,7 +72,7 @@ class KnowledgePointSerializer(AuthModelSerializer):
 
     class Meta:
         model = KnowledgePoint
-        fields = ["id", "knowledge_uniq", "knowledge", "language", "language_level", "phase", "grade", "pic_style",
+        fields = ["id", "knowledge", "language", "language_level", "phase", "grade", "pic_style",
                   "illustration", "ctime", "utime"]
 
 
@@ -80,7 +80,7 @@ class ParagraphSerializer(AuthModelSerializer):
 
     class Meta:
         model = Paragraph
-        fields = ["id", "pic_book", "chapter", "para_content_uniq", "book_page", "knowledge_point",
+        fields = ["id", "pic_book", "chapter", "book_page", "knowledge",
                   "para_content", "illustration", "seq", "utime"]
 
 
@@ -93,7 +93,7 @@ class ParagraphBulkCreateUpdateSerializer(serializers.ListSerializer):
 class ParagraphBulkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Paragraph
-        fields = ["id", "para_content_uniq", "book_page", "knowledge_point", "para_content", "illustration",
+        fields = ["id", "para_content_uniq", "book_page", "knowledge", "para_content", "illustration",
                   "seq", "utime"]
         read_only_fields = ['id', ]
         list_serializer_class = ParagraphBulkCreateUpdateSerializer

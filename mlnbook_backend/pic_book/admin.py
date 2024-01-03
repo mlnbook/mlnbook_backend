@@ -47,7 +47,7 @@ class KnowledgePointAdmin(admin.ModelAdmin):
 
 @admin.register(Paragraph)
 class ParagraphAdmin(admin.ModelAdmin):
-    list_display = ["id", "para_content_uniq", "book_page", "knowledge_point", "para_content",
+    list_display = ["id", "para_content_uniq", "book_page", "knowledge", "para_content",
                     "seq", "user", "ctime"]
     search_fields = ["para_content"]
 

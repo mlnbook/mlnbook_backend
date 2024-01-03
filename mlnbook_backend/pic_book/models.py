@@ -1,6 +1,9 @@
 # coding=utf-8
+import hashlib
 from django.db import models
 from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from taggit.managers import TaggableManager
 
 from mlnbook_backend.utils.global_choices import LANGUAGE_CODE_CHOICES, LANGUAGE_LEVEL, PHASE_LEVEL, GRADE_LEVEL
@@ -24,7 +27,6 @@ BOOK_STATE_CHOICES = (
     (-1, "offline"),
     (0, "prepare"),
 )
-
 
 FLEX_JUSTIFY_OPTIONS = (
     ('flex-start', 'flex-start'),
@@ -150,7 +152,8 @@ class LayoutTemplate(models.Model):
     font_size = models.SmallIntegerField("文字大小", default="14", help_text="14px")
     background_img = models.ImageField("背景图面", upload_to="pic_books/background_img/", null=True, blank=True)
     background_color = models.CharField("背景颜色", max_length=16, default="#FFFFFF")
-    text_flex_justify = models.CharField("文本主轴位置", max_length=20, default="flex-end", choices=FLEX_JUSTIFY_OPTIONS,
+    text_flex_justify = models.CharField("文本主轴位置", max_length=20, default="flex-end",
+                                         choices=FLEX_JUSTIFY_OPTIONS,
                                          help_text="Flex弹性布局, 设置元素在主轴方向上的对齐方式")
     text_flex_align = models.CharField("文本交叉轴位置", max_length=20, default="flex-end", choices=FLEX_ALIGN_OPTIONS,
                                        help_text="Flex弹性布局, 设置元素在交叉轴方向上的对齐方式")
@@ -202,20 +205,24 @@ class KnowledgePoint(models.Model):
     knowledge_uniq = models.CharField("知识点唯一标识", max_length=64, help_text="content文本MD5加密")
     knowledge = models.CharField("知识内容", max_length=500, help_text="单词或句子，作为段落的一个主题内容")
     language = models.CharField("语言", max_length=16, default="en_US", choices=LANGUAGE_CODE_CHOICES)
-    language_level = models.CharField("语言级别", max_length=16, default="A1", choices=LANGUAGE_LEVEL)
+    language_level = models.CharField("默认语言级别", max_length=16, default="A1", choices=LANGUAGE_LEVEL)
     tags = TaggableManager(blank=True)
-    phase = models.CharField("学段", max_length=20, choices=PHASE_LEVEL, default="preschool")
-    grade = models.CharField("年级", max_length=30, choices=GRADE_LEVEL, default="1t2-preschool")
-    illustration = models.ImageField("插图", max_length=500, blank=True, null=True)
+    phase = models.CharField("默认学段", max_length=20, choices=PHASE_LEVEL, default="preschool")
+    grade = models.CharField("默认年级", max_length=30, choices=GRADE_LEVEL, default="1t2-preschool")
+    illustration = models.ImageField("默认插图", max_length=500, blank=True, null=True)
     # voice_template = models.ForeignKey(VoiceTemplate, on_delete=models.CASCADE, null=True)
-    pic_style = models.CharField("图片风格", max_length=20, default="realistic")
+    # pic_style = models.CharField("图片风格", max_length=20, default="realistic")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = "mlnbook_pic_book_knowledge_point"
-        unique_together = ["knowledge_uniq", "pic_style", "language"]
+        unique_together = ["knowledge_uniq", "language"]
+
+    def save(self, *args, **kwargs):
+        self.knowledge_uniq = hashlib.md5(self.knowledge.strip().lower().encode("utf-8")).hexdigest()
+        super(KnowledgePoint, self).save(*args, **kwargs)
 
     def __str__(self):
         return "%s|%s" % (self.id, self.knowledge)
@@ -257,7 +264,9 @@ class Paragraph(models.Model):
     book_page = models.ForeignKey(BookPage, on_delete=models.CASCADE, related_name="paragraphs")
     para_content = models.TextField("段落内容", help_text="段落内容；一般基于知识点+章节复合生成")
     para_content_uniq = models.CharField("段落内容唯一标识", max_length=64, help_text="content文本MD5加密")
-    knowledge_point = models.ForeignKey(KnowledgePoint, on_delete=models.CASCADE, null=True, blank=True)
+    knowledge = models.CharField("知识点", max_length=200, null=True, blank=True)
+    knowledge_uniq = models.CharField("知识点MD5", max_length=64, null=True, blank=True,
+                                      help_text="对知识点前后去空格，转小写，MD5加密")
     illustration = models.ImageField("插图", max_length=500, blank=True, null=True)
     seq = models.SmallIntegerField("页内段落排序", default=1, db_index=True)
     # 单页模式，过滤pic_book，按照 page_num + page_para_seq 排序，一个个返回。
@@ -270,31 +279,14 @@ class Paragraph(models.Model):
         unique_together = ["book_page", "para_content_uniq"]
         ordering = ["seq"]
 
+    def save(self, *args, **kwargs):
+        self.para_content_uniq = hashlib.md5(self.para_content.strip().lower().encode("utf-8")).hexdigest()
+        if self.knowledge:
+            self.knowledge_uniq = hashlib.md5(self.knowledge.strip().lower().encode("utf-8")).hexdigest()
+        super(Paragraph, self).save(*args, **kwargs)
+
     def __str__(self):
         return "%s|%s" % (self.id, self.para_content)
-
-
-# class Paragraph(models.Model):
-#     pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
-#     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
-#     page_num = models.IntegerField("页码", default=1)  # 第9页，9个段落；
-#     layout = models.ForeignKey(LayoutTemplate, on_delete=models.CASCADE, null=True)
-#     para_content = models.TextField("段落内容", help_text="段落内容；一般基于知识点+章节复合生成")
-#     para_content_uniq = models.CharField("段落内容唯一标识", max_length=64, help_text="content文本MD5加密")
-#     knowledge_point = models.ForeignKey(KnowledgePoint, on_delete=models.CASCADE, null=True)
-#     illustration = models.ForeignKey(IllustrationFile, null=True, on_delete=models.CASCADE)
-#     seq = models.IntegerField("页内段落排序", default=1)
-#     # 单页模式，过滤pic_book，按照 page_num + page_para_seq 排序，一个个返回。
-#     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-#     ctime = models.DateTimeField(auto_now_add=True)
-#     utime = models.DateTimeField(auto_now=True)
-#
-#     class Meta:
-#         db_table = "mlnbook_pic_book_paragraph"
-#         unique_together = ["pic_book", "chapter", "page_num", "para_content_uniq"]
-#
-#     def __str__(self):
-#         return self.para_content
 
 
 class ParagraphVoiceFile(models.Model):
@@ -329,3 +321,21 @@ class KnowledgeVoiceFile(models.Model):
 
     def __str__(self):
         return self.voice_file.url
+
+
+@receiver(post_save, sender=Paragraph)
+def create_knowledge(sender, instance, created, **kwargs):
+    if created:
+        try:
+            knowledge_obj = KnowledgePoint.objects.get(knowledge_uniq=instance.knowledge_uniq)
+            print("existed knowledge: %s" % knowledge_obj.knowledge)
+        except KnowledgePoint.DoesNotExist:
+            new_obj = KnowledgePoint(knowledge=instance.knowledge,
+                                     knowledge_uniq=instance.knowledge_uniq,
+                                     language=instance.pic_book.language,
+                                     language_level=instance.pic_book.language_level,
+                                     illustration=instance.illustration,
+                                     phase=instance.pic_book.phase,
+                                     grade=instance.pic_book.grade,
+                                     user=instance.user)
+            new_obj.save()
