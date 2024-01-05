@@ -72,7 +72,7 @@ class KnowledgePointSerializer(AuthModelSerializer):
 
     class Meta:
         model = KnowledgePoint
-        fields = ["id", "knowledge", "language", "language_level", "phase", "grade", "pic_style",
+        fields = ["id", "knowledge", "language", "language_level", "phase", "grade",
                   "illustration", "ctime", "utime"]
 
 
