@@ -235,6 +235,19 @@ class BookPageViewSet(viewsets.ModelViewSet):
         serializer = ParagraphSerializer(paragraph_queryset, many=True, context={"request": self.request})
         return Response(serializer.data)
 
+    @action(detail=True)
+    def chapter_paragraph(self, request, pk=None):
+        page = self.get_object()
+        paragraph_queryset = page.paragraphs.all()
+        serializer = ParagraphSerializer(paragraph_queryset, many=True, context={"request": self.request})
+        # 补充章节信息
+        chapter = ChapterSerializer(page.chapter)
+        resp_data = {
+            "paragraph": serializer.data,
+            "chapter": chapter.data
+        }
+        return Response(resp_data)
+
     @action(detail=False, methods=['post'])
     def set_seq(self):
         seq_list = self.request.data["seq_list"]
