@@ -2,7 +2,7 @@
 from django.contrib import admin
 
 from mlnbook_backend.pic_book.models import BookSeries, PicBook, Chapter, LayoutTemplate, BookPage, \
-    KnowledgePoint, Paragraph, KnowledgeVoiceFile, ParagraphVoiceFile, VoiceTemplate
+    KnowledgePoint, Paragraph, KnowledgeVoiceFile, ParagraphVoiceFile, VoiceTemplate, PicBookVoiceTemplate
 
 
 @admin.register(PicBook)
@@ -77,3 +77,9 @@ class VoiceTemplateAdmin(admin.ModelAdmin):
     list_display = ["id", "title", "language", "speaker", "tts_model",
                     "user", "ctime", "utime"]
     search_fields = ["title"]
+
+
+@admin.register(PicBookVoiceTemplate)
+class PicBookVoiceTemplateAdmin(admin.ModelAdmin):
+    list_display = ["id", "pic_book", "voice_template", "seq", "voice_state",
+                    "user", "ctime", "utime"]

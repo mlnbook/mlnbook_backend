@@ -81,9 +81,7 @@ class PicBook(models.Model):
     grade = models.CharField("年级", max_length=30, choices=GRADE_LEVEL, default="age2-preschool")
     cover_img = models.ImageField("封面图", max_length=500, blank=True, null=True)
     author = models.ManyToManyField(Author)
-    # voice
-    voice_template = models.ForeignKey(VoiceTemplate, on_delete=models.CASCADE)
-    voice_state = models.SmallIntegerField("绘本语音状态", default=0, choices=VOICE_STATE_CHOICES)
+    voice_template = models.ManyToManyField(VoiceTemplate, through='PicBookVoiceTemplate')
     state = models.SmallIntegerField("绘本状态", default=0, choices=BOOK_STATE_CHOICES)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_now_add=True)
@@ -94,6 +92,24 @@ class PicBook(models.Model):
 
     def __str__(self):
         return "%s|%s" % (self.id, self.title)
+
+
+class PicBookVoiceTemplate(models.Model):
+    pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
+    # voice
+    voice_template = models.ForeignKey(VoiceTemplate, on_delete=models.CASCADE)
+    voice_state = models.SmallIntegerField("绘本语音状态", default=0, choices=VOICE_STATE_CHOICES)
+    seq = models.SmallIntegerField("排序", default=1, help_text="排序最小的为默认")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    ctime = models.DateTimeField(auto_now_add=True)
+    utime = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "mlnbook_pic_book_voice_template_book_relation"
+        ordering = ["seq"]
+
+    def __str__(self):
+        return "%s|%s|%s" % (self.id, self.pic_book.title, self.voice_template.title)
 
 
 class BookSeries(models.Model):
