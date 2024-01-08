@@ -2,7 +2,7 @@
 from rest_framework import serializers
 
 from mlnbook_backend.pic_book.models import PicBook, Chapter, BookPage, Paragraph, LayoutTemplate, \
-    BookSeries, KnowledgePoint, VoiceTemplate
+    BookSeries, KnowledgePoint, VoiceTemplate, ParagraphVoiceFile
 from mlnbook_backend.users.serializers import AuthorSerializer
 from mlnbook_backend.utils.base_serializer import AuthModelSerializer
 
@@ -20,6 +20,12 @@ class VoiceTemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = VoiceTemplate
         fields = ['id', 'title', 'language', 'tts_model', 'model_name']
+
+
+class ParagraphVoiceFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ParagraphVoiceFile
+        fields = ['id', 'pic_book', 'voice_template', 'para_content_uniq', 'voice_file', 'duration', 'utime']
 
 
 class PicBookEditSerializer(AuthModelSerializer):

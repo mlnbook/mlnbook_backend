@@ -7,12 +7,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from mlnbook_backend.pic_book.models import PicBook, KnowledgePoint, Chapter, Paragraph, \
-    BookSeries, LayoutTemplate, BookPage, VoiceTemplate
+    BookSeries, LayoutTemplate, BookPage, VoiceTemplate, ParagraphVoiceFile
 from mlnbook_backend.pic_book.serializers import PicBookSerializer, KnowledgePointSerializer, \
     ChapterSerializer, LayoutTemplateSerializer, ParagraphSerializer, BookSeriesListSerializer, \
     BookSeriesCreateSerializer, BookPageSerializer, BookPageParagraphSerializer, ChapterParagraphSerializer, \
     ChapterPageSerializer, PicBookEditSerializer, VoiceTemplateSerializer, ParagraphBulkSerializer, \
-    ChapterMenuSerializer, ChapterPageMenuSerializer
+    ChapterMenuSerializer, ChapterPageMenuSerializer, ParagraphVoiceFileSerializer
 
 from mlnbook_backend.users.models import Author
 from mlnbook_backend.users.serializers import AuthorSerializer
@@ -22,6 +22,12 @@ from mlnbook_backend.utils.tools import gen_seq_queryset
 class VoiceTemplateViewSet(viewsets.ModelViewSet):
     queryset = VoiceTemplate.objects.all()
     serializer_class = VoiceTemplateSerializer
+
+
+class ParagraphVoiceFileViewSet(viewsets.ModelViewSet):
+    queryset = ParagraphVoiceFile.objects.all()
+    serializer_class = ParagraphVoiceFileSerializer
+    filterset_fields = ['pic_book', 'voice_template']
 
 
 class PicBookViewSet(viewsets.ModelViewSet):
