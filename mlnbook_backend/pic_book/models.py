@@ -81,7 +81,7 @@ class PicBook(models.Model):
     grade = models.CharField("年级", max_length=30, choices=GRADE_LEVEL, default="age2-preschool")
     cover_img = models.ImageField("封面图", max_length=500, blank=True, null=True)
     author = models.ManyToManyField(Author)
-    voice_template = models.ManyToManyField(VoiceTemplate, through='PicBookVoiceTemplate')
+    voice_template = models.ManyToManyField(VoiceTemplate, through='PicBookVoiceTemplateRelation', blank=True)
     state = models.SmallIntegerField("绘本状态", default=0, choices=BOOK_STATE_CHOICES)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_now_add=True)
@@ -94,13 +94,11 @@ class PicBook(models.Model):
         return "%s|%s" % (self.id, self.title)
 
 
-class PicBookVoiceTemplate(models.Model):
+class PicBookVoiceTemplateRelation(models.Model):
     pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
-    # voice
     voice_template = models.ForeignKey(VoiceTemplate, on_delete=models.CASCADE)
     voice_state = models.SmallIntegerField("绘本语音状态", default=0, choices=VOICE_STATE_CHOICES)
     seq = models.SmallIntegerField("排序", default=1, help_text="排序最小的为默认")
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
 
@@ -306,8 +304,9 @@ class Paragraph(models.Model):
 
 
 class ParagraphVoiceFile(models.Model):
-    para_content_uniq = models.CharField("段落内容唯一标识", max_length=64, help_text="content文本MD5加密")
+    pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
     voice_template = models.ForeignKey(VoiceTemplate, on_delete=models.CASCADE)
+    para_content_uniq = models.CharField("段落内容唯一标识", max_length=64, help_text="content文本MD5加密")
     voice_file = models.FileField("语音文件", upload_to="pic_book/voice_file")
     duration = models.IntegerField("毫秒", default=1000)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -316,7 +315,7 @@ class ParagraphVoiceFile(models.Model):
 
     class Meta:
         db_table = "mlnbook_pic_book_paragraph_voice_file"
-        unique_together = ["para_content_uniq", "voice_template"]
+        unique_together = ["pic_book", "para_content_uniq", "voice_template"]
 
     def __str__(self):
         return self.voice_file.url
