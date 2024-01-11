@@ -1,7 +1,10 @@
+import os
 from elevenlabs import set_api_key
 from elevenlabs import generate, play, Voice, VoiceSettings
 
-set_api_key("xxx")
+
+xi_key = os.environ.get('ELEVENLABS_ACCESS_KEY')
+set_api_key(xi_key)
 audio = generate(
     text="Hello! My name is Bella.",
     voice=Voice(

@@ -1,12 +1,14 @@
+import os
 import requests
 
+xi_key = os.environ.get('ELEVENLABS_ACCESS_KEY')
 CHUNK_SIZE = 1024
 url = "https://api.elevenlabs.io/v1/text-to-speech/jBpfuIE2acCO8z3wKNLl"
 
 headers = {
   "Accept": "audio/mpeg",
   "Content-Type": "application/json",
-  "xi-api-key": "xxx"
+  "xi-api-key": xi_key
 }
 
 data = {
