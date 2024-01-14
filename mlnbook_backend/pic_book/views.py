@@ -27,7 +27,7 @@ class VoiceTemplateViewSet(viewsets.ModelViewSet):
 class ParagraphVoiceFileViewSet(viewsets.ModelViewSet):
     queryset = ParagraphVoiceFile.objects.all()
     serializer_class = ParagraphVoiceFileSerializer
-    filterset_fields = ['pic_book', 'voice_template']
+    filterset_fields = ['pic_book', 'voice_template', 'para_content_uniq']
 
 
 class PicBookViewSet(viewsets.ModelViewSet):

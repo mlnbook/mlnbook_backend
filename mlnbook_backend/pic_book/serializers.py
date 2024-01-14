@@ -22,7 +22,7 @@ class VoiceTemplateSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'language', 'tts_model', 'model_name']
 
 
-class ParagraphVoiceFileSerializer(serializers.ModelSerializer):
+class ParagraphVoiceFileSerializer(AuthModelSerializer):
     class Meta:
         model = ParagraphVoiceFile
         fields = ['id', 'pic_book', 'voice_template', 'para_content_uniq', 'voice_file', 'duration', 'utime']
@@ -87,7 +87,7 @@ class ParagraphSerializer(AuthModelSerializer):
     class Meta:
         model = Paragraph
         fields = ["id", "pic_book", "chapter", "book_page", "knowledge",
-                  "para_content", "illustration", "seq", "utime"]
+                  "para_content", "para_content_uniq", "illustration", "seq", "utime"]
 
 
 class ParagraphBulkCreateUpdateSerializer(serializers.ListSerializer):
