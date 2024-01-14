@@ -6,6 +6,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from taggit.managers import TaggableManager
 
+from mlnbook_backend.tts_labs.models import TTSJobInstance
 from mlnbook_backend.utils.global_choices import LANGUAGE_CODE_CHOICES, LANGUAGE_LEVEL, PHASE_LEVEL, GRADE_LEVEL
 from mlnbook_backend.users.models import Author
 
@@ -54,12 +55,13 @@ class VoiceTemplate(models.Model):
     """
     title = models.CharField("标题", max_length=500)
     language = models.CharField("语言", max_length=16, default="en_US", help_text="language-ios_code, coqui保存路径")
-    tts_model = models.CharField("tts模型", max_length=20, default="coqui-ai",
-                                 help_text="开源TTS算法, coqui-ai, SpeechT5-microsoft")
-    model_name = models.CharField("模型名称", max_length=20, default="xtts_v1")
-    dataset = models.CharField("tts模型数据集", max_length=20, default="ljspeech")
-    vocoder = models.CharField("使用tts模型", max_length=20, default="hifigan_v2")
-    speaker = models.CharField("语音编码", max_length=50, blank=True)
+    tts_model = models.CharField("tts模型", max_length=20, default="azure-api",
+                                 help_text="开源TTS算法 coqui-ai, 微软语音服务 azure-api")
+    model_name = models.CharField("模型名称", max_length=20, blank=True, null=True,  help_text="xtts_v1")
+    dataset = models.CharField("模型数据集", max_length=20, blank=True, null=True, help_text="ljspeech")
+    vocoder = models.CharField("vocoder", max_length=20, blank=True, null=True, help_text="hifigan_v2")
+    speaker = models.CharField("语音编码", max_length=50, blank=True, null=True)
+    extra_params = models.JSONField("语音参数", blank=True, null=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
@@ -309,6 +311,7 @@ class ParagraphVoiceFile(models.Model):
     para_content_uniq = models.CharField("段落内容唯一标识", max_length=64, help_text="content文本MD5加密")
     voice_file = models.FileField("语音文件", upload_to="pic_book/voice_file")
     duration = models.IntegerField("毫秒", default=1000)
+    tts_job = models.ForeignKey(TTSJobInstance, blank=True, null=True, on_delete=models.SET_NULL)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
