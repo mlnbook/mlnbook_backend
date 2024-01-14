@@ -2,7 +2,7 @@ import os
 import azure.cognitiveservices.speech as speechsdk
 
 
-def tts_generator(req_txt, req_type='txt'):
+def azure_tts(req_txt, req_type='txt'):
     # This example requires environment variables named "SPEECH_KEY" and "SPEECH_REGION"
     speech_config = speechsdk.SpeechConfig(subscription=os.environ.get('SPEECH_KEY'),
                                            region=os.environ.get('SPEECH_REGION'))

@@ -3,7 +3,7 @@ from elevenlabs import set_api_key
 from elevenlabs import generate, play, Voice, VoiceSettings, save
 
 
-def tts_generator(req_txt, req_type='txt'):
+def elevenlab_tts(req_txt, req_type='txt'):
     xi_key = os.environ.get('ELEVENLABS_ACCESS_KEY')
     set_api_key(xi_key)
     audio = generate(
