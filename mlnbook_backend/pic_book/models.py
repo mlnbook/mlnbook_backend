@@ -303,7 +303,8 @@ class Paragraph(models.Model):
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
     book_page = models.ForeignKey(BookPage, on_delete=models.CASCADE, related_name="paragraphs")
     para_content = models.TextField("段落内容", help_text="段落内容；一般基于知识点+章节复合生成")
-    para_ssml = models.TextField("段落的ssml语音", blank=True, help_text="判断是否以<voice开头，<speak>下面，否则放在<voice>下面")
+    para_ssml = models.TextField("段落的ssml语音", blank=True,
+                                 help_text="判断是否以<voice开头，<speak>下面，否则放在<voice>下面")
     para_content_uniq = models.CharField("段落内容唯一标识", max_length=64, help_text="content文本MD5加密")
     knowledge = models.CharField("知识点", max_length=200, null=True, blank=True)
     knowledge_uniq = models.CharField("知识点MD5", max_length=64, null=True, blank=True,
@@ -385,3 +386,19 @@ def create_knowledge(sender, instance, created, **kwargs):
                                      grade=instance.pic_book.grade,
                                      user=instance.user)
             new_obj.save()
+
+
+@receiver(post_save, sender=PicBookVoiceTemplateRelation)
+def create_voice_template(sender, instance, created, **kwargs):
+    if created:
+        para_queryset = Paragraph.objects.filter(pic_book=instance.pic_book)
+        # para_ssml = gen_para_ssml(para_content, para_ssml, voice_name)
+        voice_list = [
+            ParagraphVoiceFile(pic_book=instance.pic_book,
+                               voice_template=instance.voice_template,
+                               para_content_uniq=item.para_content_uniq,
+                               para_ssml=item.para_ssml
+                               ) for item in para_queryset
+        ]
+        objs = ParagraphVoiceFile.objects.bulk_create(voice_list)
+        # print("existed knowledge: %s" % knowledge_obj.knowledge)
