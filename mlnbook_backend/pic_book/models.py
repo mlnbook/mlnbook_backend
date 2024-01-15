@@ -6,8 +6,9 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from taggit.managers import TaggableManager
 
-from mlnbook_backend.tts_labs.models import TTSJobInstance
-from mlnbook_backend.utils.global_choices import LANGUAGE_CODE_CHOICES, LANGUAGE_LEVEL, PHASE_LEVEL, GRADE_LEVEL
+# from mlnbook_backend.tts_labs.models import TTSJobInstance
+from mlnbook_backend.utils.global_choices import LANGUAGE_CODE_CHOICES, LANGUAGE_LEVEL, PHASE_LEVEL, GRADE_LEVEL, \
+    AZURE_VOICE_STYLE
 from mlnbook_backend.users.models import Author
 
 CHAPTER_TYPE_CHOICES = (
@@ -47,21 +48,44 @@ FLEX_ALIGN_OPTIONS = (
 
 class VoiceTemplate(models.Model):
     """
-    使用说明：
+    coqui使用说明：
     $tts --model_name "<model_type>/<language>/<dataset>/<model_name>" \
         --vocoder_name "<model_type>/<language>/<dataset>/<model_name>"
     $tts --text "Text for TTS" --model_name "tts_models/en/ljspeech/glow-tts" \
         --vocoder_name "vocoder_models/en/ljspeech/univnet" --out_path output/path/speech.wav
+
+    当 para_ssml 无值时，使用 para_content；
+    <speak xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" xmlns:emo="http://www.w3.org/2009/10/emotionml" version="1.0" xml:lang="en-US">
+        <voice name="speaker-xxxxxxxx">
+            <mstts:express-as  style="angry" >
+                <prosody rate="0%" pitch="0%">
+                {{para_content}}
+                </prosody>
+            </mstts:express-as>
+        </voice>
+    </speak>
+
+    para_ssml有值，且以<voice开头，则：
+    <speak xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" xmlns:emo="http://www.w3.org/2009/10/emotionml" version="1.0" xml:lang="en-US">
+        {{para_ssml}}
+    </speak>
+
+    其他情况：
+    <speak xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" xmlns:emo="http://www.w3.org/2009/10/emotionml" version="1.0" xml:lang="en-US">
+        <voice name="speaker-xxxxxxxx">
+            {{para_ssml}}
+        </voice>
+    </speak>
     """
     title = models.CharField("标题", max_length=500)
     language = models.CharField("语言", max_length=16, default="en_US", help_text="language-ios_code, coqui保存路径")
     tts_model = models.CharField("tts模型", max_length=20, default="azure-api",
                                  help_text="开源TTS算法 coqui-ai, 微软语音服务 azure-api")
-    model_name = models.CharField("模型名称", max_length=20, blank=True, null=True,  help_text="xtts_v1")
-    dataset = models.CharField("模型数据集", max_length=20, blank=True, null=True, help_text="ljspeech")
-    vocoder = models.CharField("vocoder", max_length=20, blank=True, null=True, help_text="hifigan_v2")
-    speaker = models.CharField("语音编码", max_length=50, blank=True, null=True)
-    extra_params = models.JSONField("语音参数", blank=True, null=True)
+    voice_name = models.CharField("主语音编码", max_length=100, blank=True, null=True)
+    style = models.CharField("说话风格", max_length=100, blank=True, null=True, choices=AZURE_VOICE_STYLE)
+    pitch = models.SmallIntegerField("音调", default=0, help_text="最大+50%，最小-50%")
+    rate = models.SmallIntegerField("语速", default=0, help_text="最大+200%，最小-100%")
+    # volume = models.SmallIntegerField("音量", default=100, help_text="最大100，最小0")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
@@ -279,6 +303,7 @@ class Paragraph(models.Model):
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
     book_page = models.ForeignKey(BookPage, on_delete=models.CASCADE, related_name="paragraphs")
     para_content = models.TextField("段落内容", help_text="段落内容；一般基于知识点+章节复合生成")
+    para_ssml = models.TextField("段落的ssml语音", blank=True, help_text="判断是否以<voice开头，<speak>下面，否则放在<voice>下面")
     para_content_uniq = models.CharField("段落内容唯一标识", max_length=64, help_text="content文本MD5加密")
     knowledge = models.CharField("知识点", max_length=200, null=True, blank=True)
     knowledge_uniq = models.CharField("知识点MD5", max_length=64, null=True, blank=True,
@@ -306,12 +331,15 @@ class Paragraph(models.Model):
 
 
 class ParagraphVoiceFile(models.Model):
+    # 例行写入；人工上传？
     pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
     voice_template = models.ForeignKey(VoiceTemplate, on_delete=models.CASCADE)
     para_content_uniq = models.CharField("段落内容唯一标识", max_length=64, help_text="content文本MD5加密")
     voice_file = models.FileField("语音文件", upload_to="pic_book/voice_file")
     duration = models.IntegerField("毫秒", default=1000)
-    tts_job = models.ForeignKey(TTSJobInstance, blank=True, null=True, on_delete=models.SET_NULL)
+    para_ssml = models.TextField("语音ssml", blank=True)
+    job_state = models.SmallIntegerField("任务状态", default=0)
+    job_detail = models.TextField("任务执行信息", blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
