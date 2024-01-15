@@ -10,6 +10,7 @@ from taggit.managers import TaggableManager
 from mlnbook_backend.utils.global_choices import LANGUAGE_CODE_CHOICES, LANGUAGE_LEVEL, PHASE_LEVEL, GRADE_LEVEL, \
     AZURE_VOICE_STYLE
 from mlnbook_backend.users.models import Author
+from mlnbook_backend.utils.tools import gen_para_ssml
 
 CHAPTER_TYPE_CHOICES = (
     ("public", "完全公开"),
@@ -389,16 +390,35 @@ def create_knowledge(sender, instance, created, **kwargs):
 
 
 @receiver(post_save, sender=PicBookVoiceTemplateRelation)
-def create_voice_template(sender, instance, created, **kwargs):
+def init_paragraph_voice(sender, instance, created, **kwargs):
     if created:
         para_queryset = Paragraph.objects.filter(pic_book=instance.pic_book)
         # para_ssml = gen_para_ssml(para_content, para_ssml, voice_name)
+        voice_name = instance.voice_template.voice_name
         voice_list = [
             ParagraphVoiceFile(pic_book=instance.pic_book,
                                voice_template=instance.voice_template,
                                para_content_uniq=item.para_content_uniq,
-                               para_ssml=item.para_ssml
+                               para_ssml=gen_para_ssml(item.para_content, item.para_ssml, voice_name),
+                               user=item.user
                                ) for item in para_queryset
         ]
         objs = ParagraphVoiceFile.objects.bulk_create(voice_list)
-        # print("existed knowledge: %s" % knowledge_obj.knowledge)
+
+
+@receiver(post_save, sender=Paragraph)
+def sync_paragraph_voice(sender, instance, created, **kwargs):
+    if created:
+        queryset = PicBookVoiceTemplateRelation.objects.filter(pic_book=instance.pic_book)
+        if queryset:
+            # instance 为段落obj
+            for relation_obj in queryset:
+                voice_name = relation_obj.voice_template.voice_name
+                new_obj = ParagraphVoiceFile(pic_book=relation_obj.pic_book,
+                                             voice_template=relation_obj.voice_template,
+                                             para_content_uniq=instance.para_content_uniq,
+                                             para_ssml=gen_para_ssml(instance.para_content, instance.para_ssml,
+                                                                     voice_name),
+                                             user=instance.user
+                                             )
+                new_obj.save()
