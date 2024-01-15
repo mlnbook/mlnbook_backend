@@ -74,7 +74,7 @@ class KnowledgeVoiceFileAdmin(admin.ModelAdmin):
 
 @admin.register(VoiceTemplate)
 class VoiceTemplateAdmin(admin.ModelAdmin):
-    list_display = ["id", "title", "language", "speaker", "tts_model",
+    list_display = ["id", "title", "language", "voice_name", "tts_model",
                     "user", "ctime", "utime"]
     search_fields = ["title"]
 
