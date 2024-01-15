@@ -7,19 +7,20 @@ from mlnbook_backend.users.serializers import AuthorSerializer
 from mlnbook_backend.utils.base_serializer import AuthModelSerializer
 
 
+class VoiceTemplateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VoiceTemplate
+        fields = ['id', 'title', 'language', 'tts_model', 'voice_name']
+
+
 class PicBookSerializer(AuthModelSerializer):
     author = AuthorSerializer(many=True)
+    voice_template = VoiceTemplateSerializer(many=True)
 
     class Meta:
         model = PicBook
         fields = ['id', 'title', 'description', 'language', 'language_level', 'phase', 'grade', 'cover_img', 'author',
                   'voice_template', 'state', 'utime']
-
-
-class VoiceTemplateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = VoiceTemplate
-        fields = ['id', 'title', 'language', 'tts_model', 'model_name']
 
 
 class ParagraphVoiceFileSerializer(AuthModelSerializer):
@@ -29,6 +30,7 @@ class ParagraphVoiceFileSerializer(AuthModelSerializer):
 
 
 class PicBookEditSerializer(AuthModelSerializer):
+    voice_template = serializers.PrimaryKeyRelatedField(many=True, queryset=VoiceTemplate.objects.all())
 
     class Meta:
         model = PicBook
