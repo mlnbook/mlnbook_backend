@@ -7,21 +7,61 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from mlnbook_backend.pic_book.models import PicBook, KnowledgePoint, Chapter, Paragraph, \
-    BookSeries, LayoutTemplate, BookPage, VoiceTemplate, ParagraphVoiceFile
+    BookSeries, LayoutTemplate, BookPage, VoiceTemplate, ParagraphVoiceFile, PicBookVoiceTemplateRelation
 from mlnbook_backend.pic_book.serializers import PicBookSerializer, KnowledgePointSerializer, \
     ChapterSerializer, LayoutTemplateSerializer, ParagraphSerializer, BookSeriesListSerializer, \
     BookSeriesCreateSerializer, BookPageSerializer, BookPageParagraphSerializer, ChapterParagraphSerializer, \
     ChapterPageSerializer, PicBookEditSerializer, VoiceTemplateSerializer, ParagraphBulkSerializer, \
-    ChapterMenuSerializer, ChapterPageMenuSerializer, ParagraphVoiceFileSerializer
+    ChapterMenuSerializer, ChapterPageMenuSerializer, ParagraphVoiceFileSerializer, \
+    PicBookVoiceTemplateRelationSerializer
 
 from mlnbook_backend.users.models import Author
 from mlnbook_backend.users.serializers import AuthorSerializer
-from mlnbook_backend.utils.tools import gen_seq_queryset
+from mlnbook_backend.utils.tools import gen_seq_queryset, gen_para_ssml
 
 
 class VoiceTemplateViewSet(viewsets.ModelViewSet):
     queryset = VoiceTemplate.objects.all()
     serializer_class = VoiceTemplateSerializer
+
+
+class PicBookVoiceViewSet(viewsets.ModelViewSet):
+    queryset = PicBookVoiceTemplateRelation.objects.all()
+    serializer_class = PicBookVoiceTemplateRelationSerializer
+    filterset_fields = ['pic_book', 'voice_template']
+
+    @action(detail=False, methods=["post"])
+    def gen_voice_file(self, request, pk=None):
+        pic_book = request.data["pic_book"]
+        voice_template = request.data["voice_template"]
+        queryset = PicBookVoiceTemplateRelation.objects.filter(pic_book_id=pic_book, voice_template_id=voice_template)
+        if not queryset:
+            return Response({"detail": "绘本语音模板不存在"}, status=status.HTTP_400_BAD_REQUEST)
+        relation_obj = queryset[0]
+        voice_cfg = {"voice_name": relation_obj.voice_template.voice_name,
+                     "style": relation_obj.voice_template.style,
+                     "pitch": relation_obj.voice_template.pitch,
+                     "rate": relation_obj.voice_template.rate
+                     }
+        para_queryset = Paragraph.objects.filter(pic_book=pic_book)
+        ParagraphVoiceFile.objects.filter(pic_book=pic_book).delete()
+        voice_file_list = [
+            ParagraphVoiceFile(pic_book=relation_obj.pic_book,
+                               voice_template=relation_obj.voice_template,
+                               para_content_uniq=item.para_content_uniq,
+                               para_ssml=gen_para_ssml(item.para_content, item.para_ssml,
+                                                       voice_cfg),
+                               user=item.user
+                               ) for item in para_queryset
+        ]
+        ParagraphVoiceFile.objects.bluk_create(voice_file_list)
+        # 调用tts api接口
+        # from django.core.files.base import ContentFile
+        # import base64
+        # audio_data = azure_tts()
+        # file_data = ContentFile(base64.b64decode(audio_data))
+        # object.file.save("file_name.wav", file_data)
+        return Response({"detail": "success"})
 
 
 class ParagraphVoiceFileViewSet(viewsets.ModelViewSet):
@@ -39,6 +79,13 @@ class PicBookViewSet(viewsets.ModelViewSet):
             return PicBookEditSerializer
         else:
             return PicBookSerializer
+
+    @action(detail=True)
+    def voice_list(self, request, pk=None):
+        pic_book = self.get_object()
+        queryset = PicBookVoiceTemplateRelation.objects.filter(pic_book=pic_book)
+        resp_data = PicBookVoiceTemplateRelationSerializer(queryset, many=True).data
+        return Response(resp_data)
 
     @staticmethod
     def gen_chapter_page_menu(root_chapter_queryset):
