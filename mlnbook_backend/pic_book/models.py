@@ -81,7 +81,7 @@ class VoiceTemplate(models.Model):
     title = models.CharField("标题", max_length=500)
     language = models.CharField("语言", max_length=16, default="en_US", help_text="language-ios_code, coqui保存路径")
     tts_model = models.CharField("tts模型", max_length=20, default="azure-api",
-                                 help_text="开源TTS算法 coqui-ai, 微软语音服务 azure-api")
+                                 help_text="开源TTS算法 coqui-ai, 微软语音服务 azure-api; 人工 manual")
     voice_name = models.CharField("主语音编码", max_length=100, blank=True, null=True)
     style = models.CharField("说话风格", max_length=100, blank=True, null=True, choices=AZURE_VOICE_STYLE)
     pitch = models.SmallIntegerField("音调", default=0, help_text="最大+50%，最小-50%")
@@ -131,6 +131,7 @@ class PicBookVoiceTemplateRelation(models.Model):
 
     class Meta:
         db_table = "mlnbook_pic_book_voice_template_book_relation"
+        unique_together = ["pic_book", "voice_template"]
         ordering = ["seq"]
 
     def __str__(self):
@@ -337,7 +338,7 @@ class ParagraphVoiceFile(models.Model):
     pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
     voice_template = models.ForeignKey(VoiceTemplate, on_delete=models.CASCADE)
     para_content_uniq = models.CharField("段落内容唯一标识", max_length=64, help_text="content文本MD5加密")
-    voice_file = models.FileField("语音文件", upload_to="pic_book/voice_file")
+    voice_file = models.FileField("语音文件", upload_to="pic_book/voice_file", blank=True, null=True)
     duration = models.IntegerField("毫秒", default=1000)
     para_ssml = models.TextField("语音ssml", blank=True)
     job_state = models.SmallIntegerField("任务状态", default=0)
@@ -351,7 +352,10 @@ class ParagraphVoiceFile(models.Model):
         unique_together = ["pic_book", "para_content_uniq", "voice_template"]
 
     def __str__(self):
-        return self.voice_file.url
+        if self.voice_file:
+            return self.voice_file.url
+        else:
+            return "%s" % self.id
 
 
 class KnowledgeVoiceFile(models.Model):
@@ -388,37 +392,24 @@ def create_knowledge(sender, instance, created, **kwargs):
                                      user=instance.user)
             new_obj.save()
 
-
-@receiver(post_save, sender=PicBookVoiceTemplateRelation)
-def init_paragraph_voice(sender, instance, created, **kwargs):
-    if created:
-        para_queryset = Paragraph.objects.filter(pic_book=instance.pic_book)
-        # para_ssml = gen_para_ssml(para_content, para_ssml, voice_name)
-        voice_name = instance.voice_template.voice_name
-        voice_list = [
-            ParagraphVoiceFile(pic_book=instance.pic_book,
-                               voice_template=instance.voice_template,
-                               para_content_uniq=item.para_content_uniq,
-                               para_ssml=gen_para_ssml(item.para_content, item.para_ssml, voice_name),
-                               user=item.user
-                               ) for item in para_queryset
-        ]
-        objs = ParagraphVoiceFile.objects.bulk_create(voice_list)
-
-
-@receiver(post_save, sender=Paragraph)
-def sync_paragraph_voice(sender, instance, created, **kwargs):
-    if created:
-        queryset = PicBookVoiceTemplateRelation.objects.filter(pic_book=instance.pic_book)
-        if queryset:
-            # instance 为段落obj
-            for relation_obj in queryset:
-                voice_name = relation_obj.voice_template.voice_name
-                new_obj = ParagraphVoiceFile(pic_book=relation_obj.pic_book,
-                                             voice_template=relation_obj.voice_template,
-                                             para_content_uniq=instance.para_content_uniq,
-                                             para_ssml=gen_para_ssml(instance.para_content, instance.para_ssml,
-                                                                     voice_name),
-                                             user=instance.user
-                                             )
-                new_obj.save()
+#
+# @receiver(post_save, sender=Paragraph)
+# def sync_paragraph_voice(sender, instance, created, **kwargs):
+#     if created:
+#         queryset = PicBookVoiceTemplateRelation.objects.filter(pic_book=instance.pic_book)
+#         if queryset:
+#             # instance 为段落obj
+#             for relation_obj in queryset:
+#                 voice_cfg = {"voice_name": relation_obj.voice_template.voice_name,
+#                              "style": relation_obj.voice_template.style,
+#                              "pitch": relation_obj.voice_template.pitch,
+#                              "rate": relation_obj.voice_template.rate
+#                              }
+#                 new_obj = ParagraphVoiceFile(pic_book=relation_obj.pic_book,
+#                                              voice_template=relation_obj.voice_template,
+#                                              para_content_uniq=instance.para_content_uniq,
+#                                              para_ssml=gen_para_ssml(instance.para_content, instance.para_ssml,
+#                                                                      voice_cfg),
+#                                              user=instance.user
+#                                              )
+#                 new_obj.save()
