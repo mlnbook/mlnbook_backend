@@ -2,7 +2,7 @@
 from rest_framework import serializers
 
 from mlnbook_backend.pic_book.models import PicBook, Chapter, BookPage, Paragraph, LayoutTemplate, \
-    BookSeries, KnowledgePoint, VoiceTemplate, ParagraphVoiceFile
+    BookSeries, KnowledgePoint, VoiceTemplate, ParagraphVoiceFile, PicBookVoiceTemplateRelation
 from mlnbook_backend.users.serializers import AuthorSerializer
 from mlnbook_backend.utils.base_serializer import AuthModelSerializer
 
@@ -21,6 +21,22 @@ class PicBookSerializer(AuthModelSerializer):
         model = PicBook
         fields = ['id', 'title', 'description', 'language', 'language_level', 'phase', 'grade', 'cover_img', 'author',
                   'voice_template', 'state', 'utime']
+
+
+class PicBookListSerializer(AuthModelSerializer):
+
+    class Meta:
+        model = PicBook
+        fields = ['id', 'title', 'description', 'language', 'language_level', 'ctime']
+
+
+class PicBookVoiceTemplateRelationSerializer(serializers.ModelSerializer):
+    pic_book = PicBookListSerializer()
+    voice_template = VoiceTemplateSerializer()
+
+    class Meta:
+        model = PicBookVoiceTemplateRelation
+        fields = ["id", "pic_book", "voice_template", "seq", "ctime"]
 
 
 class ParagraphVoiceFileSerializer(AuthModelSerializer):
@@ -89,7 +105,7 @@ class ParagraphSerializer(AuthModelSerializer):
     class Meta:
         model = Paragraph
         fields = ["id", "pic_book", "chapter", "book_page", "knowledge",
-                  "para_content", "para_content_uniq", "illustration", "seq", "utime"]
+                  "para_content", "illustration", "seq", "utime"]
 
 
 class ParagraphBulkCreateUpdateSerializer(serializers.ListSerializer):
