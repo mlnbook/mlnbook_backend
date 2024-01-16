@@ -43,8 +43,8 @@ class PicBookVoiceViewSet(viewsets.ModelViewSet):
                      "pitch": relation_obj.voice_template.pitch,
                      "rate": relation_obj.voice_template.rate
                      }
-        para_queryset = Paragraph.objects.filter(pic_book=pic_book)
-        ParagraphVoiceFile.objects.filter(pic_book=pic_book).delete()
+        para_queryset = Paragraph.objects.filter(pic_book_id=pic_book)
+        ParagraphVoiceFile.objects.filter(pic_book_id=pic_book).delete()
         voice_file_list = [
             ParagraphVoiceFile(pic_book=relation_obj.pic_book,
                                voice_template=relation_obj.voice_template,
@@ -54,7 +54,7 @@ class PicBookVoiceViewSet(viewsets.ModelViewSet):
                                user=item.user
                                ) for item in para_queryset
         ]
-        ParagraphVoiceFile.objects.bluk_create(voice_file_list)
+        ParagraphVoiceFile.objects.bulk_create(voice_file_list)
         # 调用tts api接口
         # from django.core.files.base import ContentFile
         # import base64
