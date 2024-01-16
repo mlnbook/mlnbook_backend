@@ -2,32 +2,56 @@
 from rest_framework import serializers
 
 from mlnbook_backend.pic_book.models import PicBook, Chapter, BookPage, Paragraph, LayoutTemplate, \
-    BookSeries, KnowledgePoint, VoiceTemplate, IllustrationFile
+    BookSeries, KnowledgePoint, VoiceTemplate, ParagraphVoiceFile, PicBookVoiceTemplateRelation
 from mlnbook_backend.users.serializers import AuthorSerializer
 from mlnbook_backend.utils.base_serializer import AuthModelSerializer
-
-
-class PicBookSerializer(AuthModelSerializer):
-    author = AuthorSerializer(many=True)
-
-    class Meta:
-        model = PicBook
-        fields = ['id', 'title', 'description', 'language', 'language_level', 'phase', 'grade', 'cover_img', 'author',
-                  'voice_template', 'voice_state', 'state', 'utime']
 
 
 class VoiceTemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = VoiceTemplate
-        fields = ['id', 'title', 'language', 'tts_model', 'model_name']
+        fields = ['id', 'title', 'language', 'tts_model', 'voice_name']
 
 
-class PicBookEditSerializer(AuthModelSerializer):
+class PicBookSerializer(AuthModelSerializer):
+    author = AuthorSerializer(many=True)
+    voice_template = VoiceTemplateSerializer(many=True)
 
     class Meta:
         model = PicBook
         fields = ['id', 'title', 'description', 'language', 'language_level', 'phase', 'grade', 'cover_img', 'author',
-                  'voice_template', 'voice_state', 'state']
+                  'voice_template', 'state', 'utime']
+
+
+class PicBookListSerializer(AuthModelSerializer):
+
+    class Meta:
+        model = PicBook
+        fields = ['id', 'title', 'description', 'language', 'language_level', 'ctime']
+
+
+class PicBookVoiceTemplateRelationSerializer(serializers.ModelSerializer):
+    pic_book = PicBookListSerializer()
+    voice_template = VoiceTemplateSerializer()
+
+    class Meta:
+        model = PicBookVoiceTemplateRelation
+        fields = ["id", "pic_book", "voice_template", "seq", "ctime"]
+
+
+class ParagraphVoiceFileSerializer(AuthModelSerializer):
+    class Meta:
+        model = ParagraphVoiceFile
+        fields = ['id', 'pic_book', 'voice_template', 'para_content_uniq', 'voice_file', 'duration', 'utime']
+
+
+class PicBookEditSerializer(AuthModelSerializer):
+    voice_template = serializers.PrimaryKeyRelatedField(many=True, queryset=VoiceTemplate.objects.all())
+
+    class Meta:
+        model = PicBook
+        fields = ['id', 'title', 'description', 'language', 'language_level', 'phase', 'grade', 'cover_img', 'author',
+                  'voice_template', 'state']
 
 
 class BookSeriesListSerializer(AuthModelSerializer):
@@ -69,21 +93,19 @@ class BookPageSerializer(AuthModelSerializer):
 
 
 class KnowledgePointSerializer(AuthModelSerializer):
-    illustration_url = serializers.CharField(source='get_illustration_url', read_only=True)
 
     class Meta:
         model = KnowledgePoint
-        fields = ["id", "knowledge_uniq", "knowledge", "language", "language_level", "phase", "grade", "pic_style",
-                  "illustration_url", "ctime", "utime"]
+        fields = ["id", "knowledge", "language", "language_level", "phase", "grade",
+                  "illustration", "ctime", "utime"]
 
 
 class ParagraphSerializer(AuthModelSerializer):
-    illustration_url = serializers.CharField(source='get_illustration_url', read_only=True)
 
     class Meta:
         model = Paragraph
-        fields = ["id", "pic_book", "chapter", "para_content_uniq", "book_page", "knowledge_point", "para_content", "illustration",
-                  "illustration_url", "seq", "utime"]
+        fields = ["id", "pic_book", "chapter", "book_page", "knowledge",
+                  "para_content", "illustration", "seq", "utime"]
 
 
 class ParagraphBulkCreateUpdateSerializer(serializers.ListSerializer):
@@ -95,7 +117,7 @@ class ParagraphBulkCreateUpdateSerializer(serializers.ListSerializer):
 class ParagraphBulkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Paragraph
-        fields = ["id", "para_content_uniq", "book_page", "knowledge_point", "para_content", "illustration",
+        fields = ["id", "para_content_uniq", "book_page", "knowledge", "para_content", "illustration",
                   "seq", "utime"]
         read_only_fields = ['id', ]
         list_serializer_class = ParagraphBulkCreateUpdateSerializer
@@ -149,7 +171,7 @@ class ChapterPageMenuSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Chapter
-        fields = ["key", "title", "seq", "parent", "bookpage_set"]
+        fields = ["id", "key", "title", "seq", "parent", "bookpage_set"]
 
 
 class ChapterMenuSerializer(serializers.ModelSerializer):
@@ -158,9 +180,3 @@ class ChapterMenuSerializer(serializers.ModelSerializer):
     class Meta:
         model = Chapter
         fields = ["key", "title", "seq", "parent"]
-
-
-class IllustrationFileSerializer(AuthModelSerializer):
-    class Meta:
-        model = IllustrationFile
-        fields = ["id", "pic_file", "ctime", "utime"]

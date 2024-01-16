@@ -2,7 +2,7 @@
 from django.contrib import admin
 
 from mlnbook_backend.pic_book.models import BookSeries, PicBook, Chapter, LayoutTemplate, BookPage, \
-    KnowledgePoint, Paragraph, KnowledgeVoiceFile, ParagraphVoiceFile, IllustrationFile, VoiceTemplate
+    KnowledgePoint, Paragraph, KnowledgeVoiceFile, ParagraphVoiceFile, VoiceTemplate, PicBookVoiceTemplateRelation
 
 
 @admin.register(PicBook)
@@ -47,7 +47,7 @@ class KnowledgePointAdmin(admin.ModelAdmin):
 
 @admin.register(Paragraph)
 class ParagraphAdmin(admin.ModelAdmin):
-    list_display = ["id", "para_content_uniq", "book_page", "knowledge_point", "para_content",
+    list_display = ["id", "para_content_uniq", "book_page", "knowledge", "para_content",
                     "seq", "user", "ctime"]
     search_fields = ["para_content"]
 
@@ -66,14 +66,20 @@ class KnowledgeVoiceFileAdmin(admin.ModelAdmin):
     search_fields = ["knowledge_uniq"]
 
 
-@admin.register(IllustrationFile)
-class IllustrationFileAdmin(admin.ModelAdmin):
-    list_display = ["id", "pic_file", "ctime", "utime"]
-    search_fields = ["id", ]
+# @admin.register(IllustrationFile)
+# class IllustrationFileAdmin(admin.ModelAdmin):
+#     list_display = ["id", "pic_file", "ctime", "utime"]
+#     search_fields = ["id", ]
 
 
 @admin.register(VoiceTemplate)
 class VoiceTemplateAdmin(admin.ModelAdmin):
-    list_display = ["id", "title", "language", "speaker", "tts_model",
+    list_display = ["id", "title", "language", "voice_name", "tts_model",
                     "user", "ctime", "utime"]
     search_fields = ["title"]
+
+
+@admin.register(PicBookVoiceTemplateRelation)
+class PicBookVoiceTemplateAdmin(admin.ModelAdmin):
+    list_display = ["id", "pic_book", "voice_template", "seq", "voice_state",
+                    "ctime", "utime"]
