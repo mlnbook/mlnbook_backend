@@ -1,10 +1,10 @@
 # coding=utf-8
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.parsers import FileUploadParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from mlnbook_backend.pic_book.tasks import paragraph_voice_file_task
 
 from mlnbook_backend.pic_book.models import PicBook, KnowledgePoint, Chapter, Paragraph, \
     BookSeries, LayoutTemplate, BookPage, VoiceTemplate, ParagraphVoiceFile, PicBookVoiceTemplateRelation
@@ -31,7 +31,37 @@ class PicBookVoiceViewSet(viewsets.ModelViewSet):
     filterset_fields = ['pic_book', 'voice_template']
 
     @action(detail=False, methods=["post"])
-    def gen_voice_file(self, request, pk=None):
+    def paragraph_voice_file(self, request, pk=None):
+        pic_book = request.data["pic_book"]
+        voice_template = request.data["voice_template"]
+        para_content_uniq = request.data["para_content_uniq"]
+        queryset = PicBookVoiceTemplateRelation.objects.filter(pic_book_id=pic_book, voice_template_id=voice_template)
+        if not queryset:
+            return Response({"detail": "绘本语音模板不存在"}, status=status.HTTP_400_BAD_REQUEST)
+        relation_obj = queryset[0]
+        voice_cfg = {"voice_name": relation_obj.voice_template.voice_name,
+                     "style": relation_obj.voice_template.style,
+                     "pitch": relation_obj.voice_template.pitch,
+                     "rate": relation_obj.voice_template.rate
+                     }
+        para_queryset = Paragraph.objects.filter(pic_book_id=pic_book, para_content_uniq=para_content_uniq)
+        # ParagraphVoiceFile.objects.filter(pic_book_id=pic_book).delete()
+        voice_file_list = [
+            ParagraphVoiceFile(pic_book=relation_obj.pic_book,
+                               voice_template=relation_obj.voice_template,
+                               para_content_uniq=item.para_content_uniq,
+                               para_ssml=gen_para_ssml(item.para_content, item.para_ssml,
+                                                       voice_cfg),
+                               user=item.user
+                               ) for item in para_queryset
+        ]
+        ParagraphVoiceFile.objects.bulk_create(voice_file_list)
+        # 调用tts api接口
+        paragraph_voice_file_task.delay(pic_book, voice_template)
+        return Response({"detail": "success"})
+
+    @action(detail=False, methods=["post"])
+    def bulk_gen_voice_files(self, request, pk=None):
         pic_book = request.data["pic_book"]
         voice_template = request.data["voice_template"]
         queryset = PicBookVoiceTemplateRelation.objects.filter(pic_book_id=pic_book, voice_template_id=voice_template)
@@ -56,11 +86,7 @@ class PicBookVoiceViewSet(viewsets.ModelViewSet):
         ]
         ParagraphVoiceFile.objects.bulk_create(voice_file_list)
         # 调用tts api接口
-        # from django.core.files.base import ContentFile
-        # import base64
-        # audio_data = azure_tts()
-        # file_data = ContentFile(base64.b64decode(audio_data))
-        # object.file.save("file_name.wav", file_data)
+        paragraph_voice_file_task.delay(pic_book, voice_template)
         return Response({"detail": "success"})
 
 
@@ -85,7 +111,11 @@ class PicBookViewSet(viewsets.ModelViewSet):
         pic_book = self.get_object()
         queryset = PicBookVoiceTemplateRelation.objects.filter(pic_book=pic_book)
         resp_data = PicBookVoiceTemplateRelationSerializer(queryset, many=True).data
-        return Response(resp_data)
+        para_queryset = Paragraph.objects.filter(pic_book=pic_book)
+        para_data = ParagraphSerializer(para_queryset, many=True).data
+        voice_queryset = ParagraphVoiceFile.objects.filter(pic_book=pic_book)
+        voice_data = ParagraphVoiceFileSerializer(voice_queryset, many=True).data
+        return Response({"book_voice_relation": resp_data, "paragraph": para_data, "voice_files": voice_data})
 
     @staticmethod
     def gen_chapter_page_menu(root_chapter_queryset):
