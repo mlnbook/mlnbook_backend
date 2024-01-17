@@ -31,18 +31,18 @@ class PicBookListSerializer(AuthModelSerializer):
 
 
 class PicBookVoiceTemplateRelationSerializer(serializers.ModelSerializer):
-    pic_book = PicBookListSerializer()
+    # pic_book = PicBookListSerializer()
     voice_template = VoiceTemplateSerializer()
 
     class Meta:
         model = PicBookVoiceTemplateRelation
-        fields = ["id", "pic_book", "voice_template", "seq", "ctime"]
+        fields = ["id", "voice_template", "seq", "voice_state", "ctime"]
 
 
 class ParagraphVoiceFileSerializer(AuthModelSerializer):
     class Meta:
         model = ParagraphVoiceFile
-        fields = ['id', 'pic_book', 'voice_template', 'para_content_uniq', 'voice_file', 'duration', 'utime']
+        fields = ['id', 'pic_book', 'voice_template', 'para_content_uniq', 'voice_file', 'job_state', 'duration', 'utime']
 
 
 class PicBookEditSerializer(AuthModelSerializer):
@@ -104,7 +104,7 @@ class ParagraphSerializer(AuthModelSerializer):
 
     class Meta:
         model = Paragraph
-        fields = ["id", "pic_book", "chapter", "book_page", "knowledge",
+        fields = ["id", "pic_book", "chapter", "book_page", "knowledge", "para_content_uniq",
                   "para_content", "illustration", "seq", "utime"]
 
 
