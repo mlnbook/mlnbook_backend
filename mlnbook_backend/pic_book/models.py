@@ -307,7 +307,7 @@ class Paragraph(models.Model):
     para_content = models.TextField("段落内容", help_text="段落内容；一般基于知识点+章节复合生成")
     para_ssml = models.TextField("段落的ssml语音", blank=True,
                                  help_text="判断是否以<voice开头，<speak>下面，否则放在<voice>下面")
-    para_content_uniq = models.CharField("段落内容唯一标识", max_length=64, help_text="content文本MD5加密")
+    para_content_uniq = models.CharField("段落内容唯一标识", max_length=64, help_text="content文本MD5加密", blank=True)
     knowledge = models.CharField("知识点", max_length=200, null=True, blank=True)
     knowledge_uniq = models.CharField("知识点MD5", max_length=64, null=True, blank=True,
                                       help_text="对知识点前后去空格，转小写，MD5加密")
