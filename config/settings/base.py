@@ -2,8 +2,10 @@
 Base settings to build other settings files upon.
 """
 from pathlib import Path
-
 import environ
+import django
+from django.utils.encoding import force_str
+django.utils.encoding.force_text = force_str
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 # mlnbook_backend/
@@ -90,6 +92,7 @@ THIRD_PARTY_APPS = [
     "drf_spectacular",
     "taggit",
     "django_filters",
+    "django_oss_storage",
 ]
 
 LOCAL_APPS = [
@@ -174,6 +177,25 @@ STATICFILES_FINDERS = [
 MEDIA_ROOT = str(APPS_DIR / "media")
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-url
 MEDIA_URL = "/media/"
+
+# 线上使用oss的静态文件
+ALIYUN_OSS_HTTPS = False
+STATICFILES_STORAGE = 'django_oss_storage.backends.OssStaticStorage'
+DEFAULT_FILE_STORAGE = 'django_oss_storage.backends.OssMediaStorage'
+
+# AliCloud access key ID
+OSS_ACCESS_KEY_ID = env.str("OSS_ACCESS_KEY", default="LTAI5tB5i7zta9rKZrwksxBB")
+# AliCloud access key secret
+OSS_ACCESS_KEY_SECRET = env.str("OSS_ACCESS_SECRET", default="xxxxxxxxx")
+
+# The name of the bucket to store files in
+OSS_BUCKET_NAME = "mlnbook"
+OSS_EXPIRE_TIME = 3600 * 24 * 30
+
+# The URL of AliCloud OSS endpoint
+# Refer https://www.alibabacloud.com/help/zh/doc-detail/31837.htm for OSS Region & Endpoint
+OSS_ENDPOINT = "oss-cn-beijing.aliyuncs.com"
+
 
 # TEMPLATES
 # ------------------------------------------------------------------------------
