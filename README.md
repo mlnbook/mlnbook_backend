@@ -8,6 +8,32 @@ newborn's multi language book
 
 Moved to [settings](http://cookiecutter-django.readthedocs.io/en/latest/settings.html).
 
+
+## 启动服务
+
+同时启动的客户端和服务端
+
+> /admin/dev_mlnbook/mlnbook_backend/venv/bin/supervisord -c /admin/dev_mlnbook/mlnbook_backend/supervisor.conf
+
+
+进入客户端
+
+> /admin/dev_mlnbook/mlnbook_backend/venv/bin/supervisorctl -c /admin/dev_mlnbook/mlnbook_backend/supervisor.conf
+
+重新加载(默认重启)
+
+> /admin/dev_mlnbook/mlnbook_backend/venv/bin/supervisorctl -c /admin/dev_mlnbook/mlnbook_backend/supervisor.conf reload
+
+重启失败，进程未杀死时。手动kill
+
+> ps -ef | grep 'miniconda3/bin/python' | grep -v grep | awk '{print $2}' | xargs kill
+
+查看某端口占用进程
+> lsof -i:2022
+> kill -9 xxxxx
+
+
+
 ## redis
 
 windows可以使用 https://github.com/zkteco-home/redis-windows 直接启动redis.
