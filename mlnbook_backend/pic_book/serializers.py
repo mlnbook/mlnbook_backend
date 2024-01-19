@@ -39,6 +39,12 @@ class PicBookVoiceTemplateRelationSerializer(serializers.ModelSerializer):
         fields = ["id", "voice_template", "seq", "voice_state", "ctime"]
 
 
+class PicBookVoiceTemplateRelationCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PicBookVoiceTemplateRelation
+        fields = ["id", "pic_book", "voice_template", "seq", "voice_state", "ctime"]
+
+
 class ParagraphVoiceFileSerializer(AuthModelSerializer):
     class Meta:
         model = ParagraphVoiceFile

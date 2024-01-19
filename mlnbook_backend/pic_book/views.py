@@ -13,7 +13,7 @@ from mlnbook_backend.pic_book.serializers import PicBookSerializer, KnowledgePoi
     BookSeriesCreateSerializer, BookPageSerializer, BookPageParagraphSerializer, ChapterParagraphSerializer, \
     ChapterPageSerializer, PicBookEditSerializer, VoiceTemplateSerializer, ParagraphBulkSerializer, \
     ChapterMenuSerializer, ChapterPageMenuSerializer, ParagraphVoiceFileSerializer, \
-    PicBookVoiceTemplateRelationSerializer
+    PicBookVoiceTemplateRelationSerializer, PicBookVoiceTemplateRelationCreateSerializer
 
 from mlnbook_backend.users.models import Author
 from mlnbook_backend.users.serializers import AuthorSerializer
@@ -29,6 +29,12 @@ class PicBookVoiceViewSet(viewsets.ModelViewSet):
     queryset = PicBookVoiceTemplateRelation.objects.all()
     serializer_class = PicBookVoiceTemplateRelationSerializer
     filterset_fields = ['pic_book', 'voice_template']
+
+    def get_serializer_class(self):
+        if self.action in ["create"]:
+            return PicBookVoiceTemplateRelationCreateSerializer
+        else:
+            return PicBookVoiceTemplateRelationSerializer
 
     @action(detail=False, methods=["post"])
     def paragraph_voice_file(self, request, pk=None):
