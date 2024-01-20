@@ -14,6 +14,12 @@ def paragraph_voice_file_task(pic_book_id, voice_template_id):
     queryset = ParagraphVoiceFile.objects.filter(pic_book_id=pic_book_id, voice_template_id=voice_template_id)
     # 调用tts api接口
     for item in queryset:
-        audio_data = azure_tts(item.para_ssml, item.voice_template.language, item.voice_template.voice_name)
-        file_data = ContentFile(audio_data)
-        item.voice_file.save("voice_%s.wav" % item.para_content_uniq, file_data)
+        try:
+            audio_data = azure_tts(item.para_ssml, item.voice_template.language, item.voice_template.voice_name)
+            file_data = ContentFile(audio_data)
+            item.job_state = 1
+            item.voice_file.save("voice_%s.wav" % item.para_content_uniq, file_data)
+        except Exception as e:
+            item.job_state = 0
+            item.job_detail = str(e)
+            item.save()
