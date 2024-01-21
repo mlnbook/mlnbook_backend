@@ -419,6 +419,7 @@ dump.rdb
 
 ### Project template
 mlnbook_backend/media/
+media/
 
 .pytest_cache/
 
