@@ -266,6 +266,39 @@ class PicBookViewSet(viewsets.ModelViewSet):
             chapter_list.append(parent_data)
         return Response(chapter_list)
 
+    @action(detail=True)
+    def preview(self, request, pk=None):
+        pic_book = self.get_object()
+        # 书籍的语音
+        voice_queryset = ParagraphVoiceFile.objects.filter(pic_book=pic_book)
+        voice_data = ParagraphVoiceFileSerializer(voice_queryset, many=True).data
+        # 页面内容
+        book_page_queryset = BookPage.objects.filter(pic_book=pic_book)
+        bookpage_data = BookPageSerializer(book_page_queryset, many=True).data
+
+        # 布局模板
+        layout_data = LayoutTemplateSerializer(LayoutTemplate.objects.all(), many=True).data
+        layout_map = {item['id']: item for item in layout_data}
+
+        # 段落内容
+        para_queryset = Paragraph.objects.filter(pic_book=pic_book)
+        para_data = ParagraphSerializer(para_queryset, many=True).data
+        para_page_map = {}
+        for q in para_data:
+            para_page_map.setdefault(q['book_page'], [])
+            para_page_map[q['book_page']].append(q)
+        # 拼接内容
+        for item in bookpage_data:
+            item['paragraph'] = para_page_map.get(item['id'], {})
+            item['layout_cfg'] = layout_map.get(item['layout'], {})
+        book_preview = {
+            "id": pic_book.id,
+            "title": pic_book.title,
+            "bookpage_set": bookpage_data,
+            "voice_files": voice_data
+        }
+        return Response(book_preview)
+
 
 class KnowledgePointViewSet(viewsets.ModelViewSet):
     queryset = KnowledgePoint.objects.all()
