@@ -229,6 +229,12 @@ class Chapter(models.Model):
     def __str__(self):
         return "%s|%s" % (self.id, self.title)
 
+    def is_leaf(self):
+        if self.parent:
+            return True
+        else:
+            return False
+
 
 # class IllustrationFile(models.Model):
 #     pic_file = models.ImageField("插图", upload_to="pic_books/illustration/", null=True)
@@ -273,37 +279,53 @@ class KnowledgePoint(models.Model):
         return self.illustration.url
 
 
-class BookPage(models.Model):
+# class BookPage(models.Model):
+#     pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
+#     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
+#     seq = models.IntegerField("页码顺序", default=1, db_index=True, help_text="当前为章节内部排序")
+#     layout = models.ForeignKey(LayoutTemplate, on_delete=models.CASCADE, null=True)
+#     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+#     ctime = models.DateTimeField(auto_now_add=True)
+#     utime = models.DateTimeField(auto_now=True)
+#
+#     class Meta:
+#         db_table = "mlnbook_pic_book_page"
+#         ordering = ["seq"]
+#
+#     def get_menu_key(self):
+#         # 前端节点唯一标识
+#         return "leaf_%s" % self.id
+#
+#     def get_title(self):
+#         return "PageID_%s" % self.id
+#
+#     def get_parent(self):
+#         return self.chapter_id
+#
+#     def __str__(self):
+#         return "chapter_%s|page_%s" % (self.chapter.title, self.seq)
+
+
+class Typeset(models.Model):
+    title = models.CharField("标题", max_length=200)
     pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
+    setting = models.JSONField("设定", blank=True, null=True,
+                               help_text="结构为 [[layoutID, layoutID, layoutID], [layoutID, layoutID]]; 每行为一章内容")
     seq = models.IntegerField("页码顺序", default=1, db_index=True, help_text="当前为章节内部排序")
-    layout = models.ForeignKey(LayoutTemplate, on_delete=models.CASCADE, null=True)
+    is_default = models.BooleanField(default=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = "mlnbook_pic_book_page"
+        db_table = "mlnbook_pic_book_typeset"
         ordering = ["seq"]
-
-    def get_menu_key(self):
-        # 前端节点唯一标识
-        return "leaf_%s" % self.id
-
-    def get_title(self):
-        return "PageID_%s" % self.id
-
-    def get_parent(self):
-        return self.chapter_id
-
-    def __str__(self):
-        return "chapter_%s|page_%s" % (self.chapter.title, self.seq)
 
 
 class Paragraph(models.Model):
     pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
-    book_page = models.ForeignKey(BookPage, on_delete=models.CASCADE, related_name="paragraphs")
     para_content = models.TextField("段落内容", help_text="段落内容；一般基于知识点+章节复合生成")
     para_ssml = models.TextField("段落的ssml语音", blank=True,
                                  help_text="判断是否以<voice开头，<speak>下面，否则放在<voice>下面")
@@ -312,15 +334,14 @@ class Paragraph(models.Model):
     knowledge_uniq = models.CharField("知识点MD5", max_length=64, null=True, blank=True,
                                       help_text="对知识点前后去空格，转小写，MD5加密")
     illustration = models.ImageField("插图", max_length=500, blank=True, null=True)
-    seq = models.SmallIntegerField("页内段落排序", default=1, db_index=True)
-    # 单页模式，过滤pic_book，按照 page_num + page_para_seq 排序，一个个返回。
+    seq = models.SmallIntegerField("章节内排序", default=1, db_index=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
 
     class Meta:
         db_table = "mlnbook_pic_book_paragraph"
-        unique_together = ["book_page", "para_content_uniq"]
+        unique_together = ["chapter", "para_content_uniq"]
         ordering = ["seq"]
 
     def save(self, *args, **kwargs):

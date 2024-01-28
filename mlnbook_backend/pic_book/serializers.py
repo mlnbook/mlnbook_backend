@@ -1,7 +1,7 @@
 # coding=utf-8
 from rest_framework import serializers
 
-from mlnbook_backend.pic_book.models import PicBook, Chapter, BookPage, Paragraph, LayoutTemplate, \
+from mlnbook_backend.pic_book.models import PicBook, Chapter, Paragraph, LayoutTemplate, \
     BookSeries, KnowledgePoint, VoiceTemplate, ParagraphVoiceFile, PicBookVoiceTemplateRelation
 from mlnbook_backend.users.serializers import AuthorSerializer
 from mlnbook_backend.utils.base_serializer import AuthModelSerializer
@@ -92,10 +92,10 @@ class ChapterSerializer(AuthModelSerializer):
         fields = ["id", "parent", "title", "pic_book", "text_template", "seq", "utime"]
 
 
-class BookPageSerializer(AuthModelSerializer):
-    class Meta:
-        model = BookPage
-        fields = ["id", "seq", "pic_book", "chapter", "layout", "utime"]
+# class BookPageSerializer(AuthModelSerializer):
+#     class Meta:
+#         model = BookPage
+#         fields = ["id", "seq", "pic_book", "chapter", "layout", "utime"]
 
 
 class KnowledgePointSerializer(AuthModelSerializer):
@@ -129,60 +129,60 @@ class ParagraphBulkSerializer(serializers.ModelSerializer):
         list_serializer_class = ParagraphBulkCreateUpdateSerializer
 
 
-class BookPageParagraphSerializer(AuthModelSerializer):
-    paragraphs = ParagraphSerializer(many=True)
-
-    class Meta:
-        model = BookPage
-        fields = ["id", "pic_book", "seq", "chapter", "layout", "utime", "paragraphs"]
-
-    def create(self, validated_data):
-        paragraphs_data = validated_data.pop('paragraphs')
-        book_page = BookPage.objects.create(**validated_data)
-        for paragraph_data in paragraphs_data:
-            Paragraph.objects.create(book_page=book_page, **paragraph_data)
-        return book_page
-
-
-class ChapterPageSerializer(AuthModelSerializer):
-    bookpage_set = BookPageSerializer(many=True)
-
-    class Meta:
-        model = Chapter
-        fields = ["id", "title", "text_template", "seq", "utime", "bookpage_set"]
+# class BookPageParagraphSerializer(AuthModelSerializer):
+#     paragraphs = ParagraphSerializer(many=True)
+#
+#     class Meta:
+#         model = BookPage
+#         fields = ["id", "pic_book", "seq", "chapter", "layout", "utime", "paragraphs"]
+#
+#     def create(self, validated_data):
+#         paragraphs_data = validated_data.pop('paragraphs')
+#         book_page = BookPage.objects.create(**validated_data)
+#         for paragraph_data in paragraphs_data:
+#             Paragraph.objects.create(book_page=book_page, **paragraph_data)
+#         return book_page
+#
+#
+# class ChapterPageSerializer(AuthModelSerializer):
+#     bookpage_set = BookPageSerializer(many=True)
+#
+#     class Meta:
+#         model = Chapter
+#         fields = ["id", "title", "text_template", "seq", "utime", "bookpage_set"]
 
 
 class ChapterParagraphSerializer(AuthModelSerializer):
-    bookpage_set = BookPageParagraphSerializer(many=True)
+    paragraph_set = ParagraphSerializer(many=True)
 
     class Meta:
         model = Chapter
-        fields = ["id", "title", "text_template", "seq", "utime", "bookpage_set"]
+        fields = ["id", "title", "text_template", "seq", "utime", "paragraph_set"]
 
 
-class PageMenuSerializer(serializers.ModelSerializer):
-    key = serializers.CharField(source="get_menu_key")
-    parent = serializers.IntegerField(source="get_parent")
-    title = serializers.CharField(source="get_title")
-    isLeaf = serializers.BooleanField(default=True, read_only=True)
-
-    class Meta:
-        model = BookPage
-        fields = ["id", "key", "title", "isLeaf", "parent", "seq"]
-
-
-class ChapterPageMenuSerializer(serializers.ModelSerializer):
-    key = serializers.IntegerField(source="id")
-    bookpage_set = PageMenuSerializer(many=True)
-
-    class Meta:
-        model = Chapter
-        fields = ["id", "key", "title", "seq", "parent", "bookpage_set"]
+# class PageMenuSerializer(serializers.ModelSerializer):
+#     key = serializers.CharField(source="get_menu_key")
+#     parent = serializers.IntegerField(source="get_parent")
+#     title = serializers.CharField(source="get_title")
+#     isLeaf = serializers.BooleanField(default=True, read_only=True)
+#
+#     class Meta:
+#         model = BookPage
+#         fields = ["id", "key", "title", "isLeaf", "parent", "seq"]
 
 
 class ChapterMenuSerializer(serializers.ModelSerializer):
     key = serializers.IntegerField(source="id")
+    isLeaf = serializers.BooleanField(source='is_leaf')
 
     class Meta:
         model = Chapter
-        fields = ["key", "title", "seq", "parent"]
+        fields = ["id", "key", "title", "seq", "parent", "isLeaf"]
+#
+#
+# class ChapterMenuSerializer(serializers.ModelSerializer):
+#     key = serializers.IntegerField(source="id")
+#
+#     class Meta:
+#         model = Chapter
+#         fields = ["key", "title", "seq", "parent"]
