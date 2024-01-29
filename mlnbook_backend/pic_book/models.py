@@ -218,6 +218,7 @@ class Chapter(models.Model):
     text_template = models.TextField("文案模板", max_length=1000, blank=True)
     seq = models.SmallIntegerField("顺序", default=1, db_index=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    set_group = models.BooleanField("设为分组", default=False)
     parent = models.ForeignKey("self", related_name="children", on_delete=models.CASCADE, null=True, blank=True)
     ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
@@ -234,6 +235,13 @@ class Chapter(models.Model):
             return True
         else:
             return False
+
+    def chapter_selectable(self):
+        if self.set_group:
+            # 分组不可点
+            return False
+        else:
+            return True
 
 
 # class IllustrationFile(models.Model):
@@ -307,9 +315,14 @@ class KnowledgePoint(models.Model):
 
 
 class Typeset(models.Model):
+    """
+    norm： 1x1, 2x2； pic_book，设定settings；
+    custom: 按章节定制， pic_book【无settings值】； chapter 设定 settings；
+    """
     title = models.CharField("标题", max_length=200)
+    c_type = models.CharField("排版类型", max_length=15, default="norm",
+                              help_text="norm 标准化的； custom 人工定制的")
     pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
-    chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE)
     setting = models.JSONField("设定", blank=True, null=True,
                                help_text="结构为 [[layoutID, layoutID, layoutID], [layoutID, layoutID]]; 每行为一章内容")
     seq = models.IntegerField("页码顺序", default=1, db_index=True, help_text="当前为章节内部排序")
@@ -320,6 +333,24 @@ class Typeset(models.Model):
 
     class Meta:
         db_table = "mlnbook_pic_book_typeset"
+        ordering = ["seq"]
+
+
+class ChapterTypeset(models.Model):
+    """
+    norm： 1x1, 2x2； pic_book，设定settings；
+    custom: 按章节定制， pic_book【无settings值】； chapter 设定 settings；
+    """
+    typeset = models.ForeignKey(Typeset, on_delete=models.CASCADE)
+    pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE, null=True, blank=True)
+    chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE, null=True, blank=True)
+    setting = models.JSONField("设定", blank=True, null=True,
+                               help_text="结构为 [[layoutID, layoutID, layoutID], [layoutID, layoutID]]; 每行为一章内容")
+    ctime = models.DateTimeField(auto_now_add=True)
+    utime = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "mlnbook_pic_book_custom_chapter_typeset"
         ordering = ["seq"]
 
 
