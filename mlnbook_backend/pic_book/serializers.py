@@ -111,7 +111,7 @@ class ParagraphSerializer(AuthModelSerializer):
 
     class Meta:
         model = Paragraph
-        fields = ["id", "pic_book", "chapter", "book_page", "knowledge", "para_content_uniq",
+        fields = ["id", "pic_book", "chapter", "knowledge", "para_content_uniq",
                   "para_content", "illustration", "seq", "utime"]
 
 
@@ -124,7 +124,7 @@ class ParagraphBulkCreateUpdateSerializer(serializers.ListSerializer):
 class ParagraphBulkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Paragraph
-        fields = ["id", "para_content_uniq", "book_page", "knowledge", "para_content", "illustration",
+        fields = ["id", "para_content_uniq", "knowledge", "para_content", "illustration",
                   "seq", "utime"]
         read_only_fields = ['id', ]
         list_serializer_class = ParagraphBulkCreateUpdateSerializer
@@ -190,12 +190,24 @@ class ChapterMenuSerializer(serializers.ModelSerializer):
 
 
 class TypesetSerializer(serializers.ModelSerializer):
+    chapter_typesets = serializers.JSONField(source="get_setting_layout")
+
     class Meta:
         model = Typeset
-        fields = ['id', 'title', 'c_type', 'pic_book', 'setting', 'seq', 'is_default']
+        fields = ['id', 'title', 'c_type', 'pic_book', 'setting', 'seq', 'is_default', 'chapter_typesets']
 
 
 class ChapterTypesetSerializer(serializers.ModelSerializer):
+    chapter_layouts = serializers.JSONField(source="get_chapter_setting_layout")
+
     class Meta:
         model = ChapterTypeset
-        fields = ['id', 'typeset', 'pic_book', 'setting', 'chapter']
+        fields = ['id', 'typeset', 'pic_book', 'setting', 'chapter', "chapter_layouts"]
+
+
+class CustomTypesetSerializer(serializers.ModelSerializer):
+    chapter_typesets = ChapterTypesetSerializer(many=True)
+
+    class Meta:
+        model = Typeset
+        fields = ['id', 'title', 'c_type', 'pic_book', 'setting', 'seq', 'is_default', 'chapter_typesets']

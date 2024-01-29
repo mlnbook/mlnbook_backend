@@ -1,8 +1,9 @@
 # coding=utf-8
 from django.contrib import admin
 
-from mlnbook_backend.pic_book.models import BookSeries, PicBook, Chapter, LayoutTemplate, BookPage, \
-    KnowledgePoint, Paragraph, KnowledgeVoiceFile, ParagraphVoiceFile, VoiceTemplate, PicBookVoiceTemplateRelation
+from mlnbook_backend.pic_book.models import BookSeries, PicBook, Chapter, LayoutTemplate, \
+    KnowledgePoint, Paragraph, KnowledgeVoiceFile, ParagraphVoiceFile, VoiceTemplate, \
+    PicBookVoiceTemplateRelation, Typeset, ChapterTypeset
 
 
 @admin.register(PicBook)
@@ -25,12 +26,6 @@ class ChapterAdmin(admin.ModelAdmin):
     search_fields = ["title"]
 
 
-@admin.register(BookPage)
-class BookPageAdmin(admin.ModelAdmin):
-    list_display = ["id", "seq", "pic_book", "chapter", "layout", "ctime"]
-    search_fields = ["pic_book__title"]
-
-
 @admin.register(LayoutTemplate)
 class LayoutTemplateAdmin(admin.ModelAdmin):
     list_display = ["id", "title", "grid_row_col", "grid_gutter", "user", "c_type", "ctime"]
@@ -47,7 +42,7 @@ class KnowledgePointAdmin(admin.ModelAdmin):
 
 @admin.register(Paragraph)
 class ParagraphAdmin(admin.ModelAdmin):
-    list_display = ["id", "para_content_uniq", "book_page", "knowledge", "para_content",
+    list_display = ["id", "para_content_uniq", "knowledge", "para_content",
                     "seq", "user", "ctime"]
     search_fields = ["para_content"]
 
@@ -83,3 +78,13 @@ class VoiceTemplateAdmin(admin.ModelAdmin):
 class PicBookVoiceTemplateAdmin(admin.ModelAdmin):
     list_display = ["id", "pic_book", "voice_template", "seq", "voice_state",
                     "ctime", "utime"]
+
+
+@admin.register(Typeset)
+class TypesetAdmin(admin.ModelAdmin):
+    list_display = ["id", "title", "c_type", "pic_book", "seq", "is_default"]
+
+
+@admin.register(ChapterTypeset)
+class ChapterTypesetAdmin(admin.ModelAdmin):
+    list_display = ["typeset", "chapter", "pic_book", "ctime"]

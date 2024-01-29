@@ -12,7 +12,8 @@ from mlnbook_backend.pic_book.serializers import PicBookSerializer, KnowledgePoi
     ChapterSerializer, LayoutTemplateSerializer, ParagraphSerializer, BookSeriesListSerializer, \
     BookSeriesCreateSerializer, PicBookEditSerializer, VoiceTemplateSerializer, ParagraphBulkSerializer, \
     ParagraphVoiceFileSerializer, PicBookVoiceTemplateRelationSerializer, PicBookVoiceTemplateRelationCreateSerializer, \
-    ChapterMenuSerializer, ChapterParagraphSerializer
+    ChapterMenuSerializer, ChapterParagraphSerializer, TypesetSerializer, ChapterTypesetSerializer, \
+    CustomTypesetSerializer
 
 from mlnbook_backend.users.models import Author
 from mlnbook_backend.users.serializers import AuthorSerializer
@@ -251,7 +252,7 @@ class PicBookViewSet(viewsets.ModelViewSet):
     #     return Response(chapter_list)
 
     @action(detail=True)
-    def chapter_page_paragraph(self, request, pk=None):
+    def chapter_paragraph(self, request, pk=None):
         pic_book = self.get_object()
         root_chapter_queryset = Chapter.objects.filter(pic_book=pic_book, parent__isnull=True)
         chapter_list = []
@@ -264,6 +265,21 @@ class PicBookViewSet(viewsets.ModelViewSet):
                 parent_data["children"] = child_serializer.data
             chapter_list.append(parent_data)
         return Response(chapter_list)
+
+    @action(detail=True)
+    def chapter_typeset(self, request, pk=None):
+        pic_book = self.get_object()
+        queryset = pic_book.typeset_set.all()
+        typeset_list = []
+        for typeset_obj in queryset:
+            chapter_queryset = typeset_obj.chapter_typesets.all()
+            if chapter_queryset.exists():
+                layout_data = CustomTypesetSerializer(chapter_queryset, many=True,
+                                                      context={"request": self.request})
+            else:
+                layout_data = TypesetSerializer(typeset_obj, context={"request": self.request}).data
+            typeset_list.append(layout_data)
+        return Response(typeset_list)
 
     @action(detail=True)
     def preview(self, request, pk=None):
@@ -339,42 +355,42 @@ class ChapterViewSet(viewsets.ModelViewSet):
         return Response({"detail": "更新成功"})
 
 
-class BookPageViewSet(viewsets.ModelViewSet):
-    queryset = BookPage.objects.all()
-    serializer_class = BookPageSerializer
-
-    # def get_serializer_class(self):
-    #     if self.action in ["create", "list", "retrieve"]:
-    #         return BookPageParagraphSerializer
-    #     else:
-    #         return BookPageSerializer
-
-    @action(detail=True)
-    def paragraph(self, request, pk=None):
-        page = self.get_object()
-        paragraph_queryset = page.paragraphs.all()
-        serializer = ParagraphSerializer(paragraph_queryset, many=True, context={"request": self.request})
-        return Response(serializer.data)
-
-    @action(detail=True)
-    def chapter_paragraph(self, request, pk=None):
-        page = self.get_object()
-        paragraph_queryset = page.paragraphs.all()
-        serializer = ParagraphSerializer(paragraph_queryset, many=True, context={"request": self.request})
-        # 补充章节信息
-        chapter = ChapterSerializer(page.chapter)
-        resp_data = {
-            "paragraph": serializer.data,
-            "chapter": chapter.data
-        }
-        return Response(resp_data)
-
-    @action(detail=False, methods=['post'])
-    def set_seq(self):
-        seq_list = self.request.data["seq_list"]
-        queryset = gen_seq_queryset(seq_list, BookPage)
-        BookPage.objects.bulk_update(queryset, ["seq"])
-        return Response({"detail": "更新成功"})
+# class BookPageViewSet(viewsets.ModelViewSet):
+#     queryset = BookPage.objects.all()
+#     serializer_class = BookPageSerializer
+#
+#     # def get_serializer_class(self):
+#     #     if self.action in ["create", "list", "retrieve"]:
+#     #         return BookPageParagraphSerializer
+#     #     else:
+#     #         return BookPageSerializer
+#
+#     @action(detail=True)
+#     def paragraph(self, request, pk=None):
+#         page = self.get_object()
+#         paragraph_queryset = page.paragraphs.all()
+#         serializer = ParagraphSerializer(paragraph_queryset, many=True, context={"request": self.request})
+#         return Response(serializer.data)
+#
+#     @action(detail=True)
+#     def chapter_paragraph(self, request, pk=None):
+#         page = self.get_object()
+#         paragraph_queryset = page.paragraphs.all()
+#         serializer = ParagraphSerializer(paragraph_queryset, many=True, context={"request": self.request})
+#         # 补充章节信息
+#         chapter = ChapterSerializer(page.chapter)
+#         resp_data = {
+#             "paragraph": serializer.data,
+#             "chapter": chapter.data
+#         }
+#         return Response(resp_data)
+#
+#     @action(detail=False, methods=['post'])
+#     def set_seq(self):
+#         seq_list = self.request.data["seq_list"]
+#         queryset = gen_seq_queryset(seq_list, BookPage)
+#         BookPage.objects.bulk_update(queryset, ["seq"])
+#         return Response({"detail": "更新成功"})
 
 
 class ParagraphViewSet(viewsets.ModelViewSet):

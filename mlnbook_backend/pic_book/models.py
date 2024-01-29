@@ -314,6 +314,31 @@ class KnowledgePoint(models.Model):
 #         return "chapter_%s|page_%s" % (self.chapter.title, self.seq)
 
 
+def gen_typeset_layouts(setting):
+    layout_ids = [j for row in setting for j in row]
+    queryset = LayoutTemplate.objects.filter(id__in=layout_ids)
+    layout_data = {item.id: {"id": item.id,
+                             "title": item.title,
+                             "grid_row_col": item.grid_row_col,
+                             "grid_gutter": item.grid_gutter,
+                             "font_color": item.font_color,
+                             "font_family": item.font_family,
+                             "font_size": item.font_size,
+                             "background_img": item.background_img.url if item.background_img else "",
+                             "background_color": item.background_color,
+                             "text_flex_justify": item.text_flex_justify,
+                             "text_flex_align": item.text_flex_align,
+                             "text_opacity": item.text_opacity
+                             } for item in queryset}
+    typeset_layout_list = []
+    for row in setting:
+        row_list = []
+        for layout_id in row:
+            row_list.append(layout_data[layout_id])
+        typeset_layout_list.append(row_list)
+    return typeset_layout_list
+
+
 class Typeset(models.Model):
     """
     norm： 1x1, 2x2； pic_book，设定settings；
@@ -335,13 +360,19 @@ class Typeset(models.Model):
         db_table = "mlnbook_pic_book_typeset"
         ordering = ["seq"]
 
+    def get_setting_layout(self):
+        if self.c_type == "norm":
+            return gen_typeset_layouts(self.setting)
+        else:
+            return []
+
 
 class ChapterTypeset(models.Model):
     """
     norm： 1x1, 2x2； pic_book，设定settings；
     custom: 按章节定制， pic_book【无settings值】； chapter 设定 settings；
     """
-    typeset = models.ForeignKey(Typeset, on_delete=models.CASCADE)
+    typeset = models.ForeignKey(Typeset, on_delete=models.CASCADE, related_name="chapter_typesets")
     pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE, null=True, blank=True)
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE, null=True, blank=True)
     setting = models.JSONField("设定", blank=True, null=True,
@@ -351,7 +382,10 @@ class ChapterTypeset(models.Model):
 
     class Meta:
         db_table = "mlnbook_pic_book_custom_chapter_typeset"
-        ordering = ["seq"]
+        ordering = ["id"]
+
+    def get_chapter_setting_layout(self):
+        return gen_typeset_layouts(self.setting)
 
 
 class Paragraph(models.Model):
