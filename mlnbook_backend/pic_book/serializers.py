@@ -2,7 +2,8 @@
 from rest_framework import serializers
 
 from mlnbook_backend.pic_book.models import PicBook, Chapter, Paragraph, LayoutTemplate, \
-    BookSeries, KnowledgePoint, VoiceTemplate, ParagraphVoiceFile, PicBookVoiceTemplateRelation
+    BookSeries, KnowledgePoint, VoiceTemplate, ParagraphVoiceFile, PicBookVoiceTemplateRelation, \
+    Typeset, ChapterTypeset
 from mlnbook_backend.users.serializers import AuthorSerializer
 from mlnbook_backend.utils.base_serializer import AuthModelSerializer
 
@@ -186,3 +187,15 @@ class ChapterMenuSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = Chapter
 #         fields = ["key", "title", "seq", "parent"]
+
+
+class TypesetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Typeset
+        fields = ['id', 'title', 'c_type', 'pic_book', 'setting', 'seq', 'is_default']
+
+
+class ChapterTypesetSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ChapterTypeset
+        fields = ['id', 'typeset', 'pic_book', 'setting', 'chapter']
