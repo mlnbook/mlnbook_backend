@@ -190,19 +190,18 @@ class ChapterMenuSerializer(serializers.ModelSerializer):
 
 
 class TypesetSerializer(serializers.ModelSerializer):
-    chapter_typesets = serializers.JSONField(source="get_setting_layout")
+    # layout_cfg = serializers.JSONField(source="get_layout_cfg")
 
     class Meta:
         model = Typeset
-        fields = ['id', 'title', 'c_type', 'pic_book', 'setting', 'seq', 'is_default', 'chapter_typesets']
+        fields = ['id', 'title', 'c_type', 'pic_book', 'setting', 'seq', 'is_default']
 
 
 class ChapterTypesetSerializer(serializers.ModelSerializer):
-    chapter_layouts = serializers.JSONField(source="get_chapter_setting_layout")
 
     class Meta:
         model = ChapterTypeset
-        fields = ['id', 'typeset', 'pic_book', 'setting', 'chapter', "chapter_layouts"]
+        fields = ['id', 'typeset', 'pic_book', 'setting', 'chapter']
 
 
 class CustomTypesetSerializer(serializers.ModelSerializer):
