@@ -353,9 +353,6 @@ class ChapterTypeset(models.Model):
         db_table = "mlnbook_pic_book_custom_chapter_typeset"
         ordering = ["id"]
 
-    def get_chapter_setting_layout(self):
-        return gen_typeset_layouts(self.setting)
-
 
 class Paragraph(models.Model):
     pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)

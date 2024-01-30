@@ -273,9 +273,7 @@ class PicBookViewSet(viewsets.ModelViewSet):
         layout_data = LayoutTemplateSerializer(queryset, many=True).data
         return layout_data
 
-    @action(detail=True)
-    def chapter_typeset(self, request, pk=None):
-        pic_book = self.get_object()
+    def get_book_typesets(self, pic_book):
         queryset = pic_book.typeset_set.all()
         typeset_list = []
         for typeset_obj in queryset:
@@ -292,6 +290,12 @@ class PicBookViewSet(viewsets.ModelViewSet):
                 layout_cfg = self.gen_typeset_layouts(set(layout_ids))
                 layout_data["layout_cfg"] = layout_cfg
             typeset_list.append(layout_data)
+        return typeset_list
+
+    @action(detail=True)
+    def chapter_typeset(self, request, pk=None):
+        pic_book = self.get_object()
+        typeset_list = self.get_book_typesets(pic_book)
         return Response(typeset_list)
 
     @action(detail=True)
@@ -301,28 +305,17 @@ class PicBookViewSet(viewsets.ModelViewSet):
         voice_queryset = ParagraphVoiceFile.objects.filter(pic_book=pic_book)
         voice_data = ParagraphVoiceFileSerializer(voice_queryset, many=True).data
         # 页面内容
-        book_page_queryset = BookPage.objects.filter(pic_book=pic_book)
-        bookpage_data = BookPageSerializer(book_page_queryset, many=True).data
-
+        book_paragraph_queryset = Paragraph.objects.filter(pic_book=pic_book)
+        paragraph_data = ParagraphSerializer(book_paragraph_queryset, many=True).data
         # 布局模板
-        layout_data = LayoutTemplateSerializer(LayoutTemplate.objects.all(), many=True).data
-        layout_map = {item['id']: item for item in layout_data}
+        typeset_data = self.get_book_typesets(pic_book)
 
-        # 段落内容
-        para_queryset = Paragraph.objects.filter(pic_book=pic_book)
-        para_data = ParagraphSerializer(para_queryset, many=True).data
-        para_page_map = {}
-        for q in para_data:
-            para_page_map.setdefault(q['book_page'], [])
-            para_page_map[q['book_page']].append(q)
         # 拼接内容
-        for item in bookpage_data:
-            item['paragraph'] = para_page_map.get(item['id'], {})
-            item['layout_cfg'] = layout_map.get(item['layout'], {})
         book_preview = {
             "id": pic_book.id,
             "title": pic_book.title,
-            "bookpage_set": bookpage_data,
+            "paragraph_data": paragraph_data,
+            "typeset_data": typeset_data,
             "voice_files": voice_data
         }
         return Response(book_preview)
