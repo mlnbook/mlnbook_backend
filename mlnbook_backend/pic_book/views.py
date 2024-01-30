@@ -266,18 +266,31 @@ class PicBookViewSet(viewsets.ModelViewSet):
             chapter_list.append(parent_data)
         return Response(chapter_list)
 
+    @staticmethod
+    def gen_typeset_layouts(layout_ids):
+        # layout_ids = set([layout_id for layout_id in setting])
+        queryset = LayoutTemplate.objects.filter(id__in=layout_ids)
+        layout_data = LayoutTemplateSerializer(queryset, many=True).data
+        return layout_data
+
     @action(detail=True)
     def chapter_typeset(self, request, pk=None):
         pic_book = self.get_object()
         queryset = pic_book.typeset_set.all()
         typeset_list = []
         for typeset_obj in queryset:
-            chapter_queryset = typeset_obj.chapter_typesets.all()
-            if chapter_queryset.exists():
-                layout_data = CustomTypesetSerializer(chapter_queryset, many=True,
-                                                      context={"request": self.request})
-            else:
+            if typeset_obj.c_type == "norm":
                 layout_data = TypesetSerializer(typeset_obj, context={"request": self.request}).data
+                layout_data["chapter_typesets"] = []
+                layout_cfg = self.gen_typeset_layouts(set(layout_data["setting"]))
+                layout_data["layout_cfg"] = layout_cfg
+            else:
+                layout_data = CustomTypesetSerializer(typeset_obj, context={"request": self.request}).data
+                layout_ids = []
+                for each in layout_data["chapter_typesets"]:
+                    layout_ids.extend(each["setting"])
+                layout_cfg = self.gen_typeset_layouts(set(layout_ids))
+                layout_data["layout_cfg"] = layout_cfg
             typeset_list.append(layout_data)
         return Response(typeset_list)
 
