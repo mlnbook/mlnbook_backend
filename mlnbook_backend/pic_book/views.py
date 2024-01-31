@@ -4,16 +4,18 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from mlnbook_backend.pic_book.process import get_book_typesets
 from mlnbook_backend.pic_book.tasks import paragraph_voice_file_task
 
 from mlnbook_backend.pic_book.models import PicBook, KnowledgePoint, Chapter, Paragraph, \
-    BookSeries, LayoutTemplate, VoiceTemplate, ParagraphVoiceFile, PicBookVoiceTemplateRelation
+    BookSeries, LayoutTemplate, VoiceTemplate, ParagraphVoiceFile, PicBookVoiceTemplateRelation, \
+    Typeset, ChapterTypeset
 from mlnbook_backend.pic_book.serializers import PicBookSerializer, KnowledgePointSerializer, \
     ChapterSerializer, LayoutTemplateSerializer, ParagraphSerializer, BookSeriesListSerializer, \
     BookSeriesCreateSerializer, PicBookEditSerializer, VoiceTemplateSerializer, ParagraphBulkSerializer, \
     ParagraphVoiceFileSerializer, PicBookVoiceTemplateRelationSerializer, PicBookVoiceTemplateRelationCreateSerializer, \
-    ChapterMenuSerializer, ChapterParagraphSerializer, TypesetSerializer, ChapterTypesetSerializer, \
-    CustomTypesetSerializer
+    ChapterMenuSerializer, ChapterParagraphSerializer, TypesetSerializer, ChapterTypesetSerializer
 
 from mlnbook_backend.users.models import Author
 from mlnbook_backend.users.serializers import AuthorSerializer
@@ -266,36 +268,10 @@ class PicBookViewSet(viewsets.ModelViewSet):
             chapter_list.append(parent_data)
         return Response(chapter_list)
 
-    @staticmethod
-    def gen_typeset_layouts(layout_ids):
-        # layout_ids = set([layout_id for layout_id in setting])
-        queryset = LayoutTemplate.objects.filter(id__in=layout_ids)
-        layout_data = LayoutTemplateSerializer(queryset, many=True).data
-        return layout_data
-
-    def get_book_typesets(self, pic_book):
-        queryset = pic_book.typeset_set.all()
-        typeset_list = []
-        for typeset_obj in queryset:
-            if typeset_obj.c_type == "norm":
-                layout_data = TypesetSerializer(typeset_obj, context={"request": self.request}).data
-                layout_data["chapter_typesets"] = []
-                layout_cfg = self.gen_typeset_layouts(set(layout_data["setting"]))
-                layout_data["layout_cfg"] = layout_cfg
-            else:
-                layout_data = CustomTypesetSerializer(typeset_obj, context={"request": self.request}).data
-                layout_ids = []
-                for each in layout_data["chapter_typesets"]:
-                    layout_ids.extend(each["setting"])
-                layout_cfg = self.gen_typeset_layouts(set(layout_ids))
-                layout_data["layout_cfg"] = layout_cfg
-            typeset_list.append(layout_data)
-        return typeset_list
-
     @action(detail=True)
     def chapter_typeset(self, request, pk=None):
         pic_book = self.get_object()
-        typeset_list = self.get_book_typesets(pic_book)
+        typeset_list = get_book_typesets(pic_book)
         return Response(typeset_list)
 
     @action(detail=True)
@@ -308,7 +284,7 @@ class PicBookViewSet(viewsets.ModelViewSet):
         book_paragraph_queryset = Paragraph.objects.filter(pic_book=pic_book)
         paragraph_data = ParagraphSerializer(book_paragraph_queryset, many=True).data
         # 布局模板
-        typeset_data = self.get_book_typesets(pic_book)
+        typeset_data = get_book_typesets(pic_book)
 
         # 拼接内容
         book_preview = {
@@ -331,6 +307,16 @@ class LayoutTemplateViewSet(viewsets.ModelViewSet):
     serializer_class = LayoutTemplateSerializer
 
 
+class TypesetViewSet(viewsets.ModelViewSet):
+    queryset = Typeset.objects.all()
+    serializer_class = TypesetSerializer
+
+
+class ChapterTypesetViewSet(viewsets.ModelViewSet):
+    queryset = ChapterTypeset.objects.all()
+    serializer_class = ChapterTypesetSerializer
+
+
 class ChapterViewSet(viewsets.ModelViewSet):
     queryset = Chapter.objects.all()
     serializer_class = ChapterSerializer
@@ -346,8 +332,10 @@ class ChapterViewSet(viewsets.ModelViewSet):
     def paragraph(self, request, pk=None):
         chapter = self.get_object()
         queryset = chapter.paragraph_set.all()
+        typeset_data = get_book_typesets(chapter.pic_book)
         serializer = ParagraphSerializer(queryset, many=True)
-        return Response(serializer.data)
+        resp_data = {"typeset_data": typeset_data, "paragraphs": serializer.data}
+        return Response(resp_data)
 
     @action(detail=False, methods=['post'])
     def set_seq(self):
