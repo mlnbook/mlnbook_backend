@@ -324,7 +324,7 @@ class Typeset(models.Model):
                               help_text="norm 标准化的； custom 人工定制的")
     pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
     setting = models.JSONField("设定", blank=True, null=True,
-                               help_text="结构为 [[layoutID, layoutID, layoutID], [layoutID, layoutID]]; 每行为一章内容")
+                               help_text="结构为 [layoutID, layoutID, layoutID]; 按布局填充内容")
     seq = models.IntegerField("页码顺序", default=1, db_index=True, help_text="当前为章节内部排序")
     is_default = models.BooleanField(default=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -344,8 +344,8 @@ class ChapterTypeset(models.Model):
     typeset = models.ForeignKey(Typeset, on_delete=models.CASCADE, related_name="chapter_typesets")
     pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE, null=True, blank=True)
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE, null=True, blank=True)
-    setting = models.JSONField("设定", blank=True, null=True,
-                               help_text="结构为 [layoutID, layoutID, layoutID, layoutID, layoutID]; 每行为一章内容")
+    setting = models.JSONField("设定", blank=True, null=True, default=[],
+                               help_text="结构为 [layoutID, layoutID, layoutID]; 按布局填充内容")
     ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
 
@@ -444,7 +444,34 @@ def create_knowledge(sender, instance, created, **kwargs):
                                      user=instance.user)
             new_obj.save()
 
-#
+
+@receiver(post_save, sender=Typeset)
+def create_chapter_typeset(sender, instance, created, **kwargs):
+    if created:
+        if instance.c_type == 'custom':
+            chapter_query = Chapter.objects.filter(pic_book=instance.pic_book)
+            chapter_typeset_list = [
+                ChapterTypeset(pic_book=instance.pic_book,
+                               chapter=chapter,
+                               typeset=instance
+                               ) for chapter in chapter_query
+            ]
+            ChapterTypeset.objects.bulk_create(chapter_typeset_list)
+
+
+@receiver(post_save, sender=Chapter)
+def sync_chapter_typeset(sender, instance, created, **kwargs):
+    if created:
+        custom_typeset_queryset = Typeset.objects.filter(pic_book=instance.pic_book, c_type='custom')
+        if custom_typeset_queryset:
+            chapter_typeset_list = [
+                ChapterTypeset(pic_book=instance.pic_book,
+                               chapter=instance,
+                               typeset=typeset
+                               ) for typeset in custom_typeset_queryset
+            ]
+            ChapterTypeset.objects.bulk_create(chapter_typeset_list)
+
 # @receiver(post_save, sender=Paragraph)
 # def sync_paragraph_voice(sender, instance, created, **kwargs):
 #     if created:
