@@ -42,9 +42,10 @@ class KnowledgePointAdmin(admin.ModelAdmin):
 
 @admin.register(Paragraph)
 class ParagraphAdmin(admin.ModelAdmin):
-    list_display = ["id", "para_content_uniq", "knowledge", "para_content",
+    list_display = ["id", "para_content_uniq", "knowledge", "para_content", "pic_book", "chapter", "illustration",
                     "seq", "user", "ctime"]
     search_fields = ["para_content"]
+    list_filter = ["pic_book"]
 
 
 @admin.register(ParagraphVoiceFile)
