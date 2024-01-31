@@ -323,7 +323,7 @@ class Typeset(models.Model):
     c_type = models.CharField("排版类型", max_length=15, default="norm",
                               help_text="norm 标准化的； custom 人工定制的")
     pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
-    setting = models.JSONField("设定", blank=True, null=True,
+    setting = models.JSONField("设定", blank=True, null=True, default=list,
                                help_text="结构为 [layoutID, layoutID, layoutID]; 按布局填充内容")
     seq = models.IntegerField("页码顺序", default=1, db_index=True, help_text="当前为章节内部排序")
     is_default = models.BooleanField(default=False)
@@ -335,6 +335,9 @@ class Typeset(models.Model):
         db_table = "mlnbook_pic_book_typeset"
         ordering = ["seq"]
 
+    def __str__(self):
+        return self.title
+
 
 class ChapterTypeset(models.Model):
     """
@@ -344,7 +347,7 @@ class ChapterTypeset(models.Model):
     typeset = models.ForeignKey(Typeset, on_delete=models.CASCADE, related_name="chapter_typesets")
     pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE, null=True, blank=True)
     chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE, null=True, blank=True)
-    setting = models.JSONField("设定", blank=True, null=True, default=[],
+    setting = models.JSONField("设定", blank=True, null=True, default=list,
                                help_text="结构为 [layoutID, layoutID, layoutID]; 按布局填充内容")
     ctime = models.DateTimeField(auto_now_add=True)
     utime = models.DateTimeField(auto_now=True)
