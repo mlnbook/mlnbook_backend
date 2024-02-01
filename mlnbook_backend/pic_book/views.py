@@ -254,17 +254,20 @@ class PicBookViewSet(viewsets.ModelViewSet):
     #     return Response(chapter_list)
 
     @staticmethod
-    def get_chapter_paragraph(pic_book, request=None):
+    def get_spread_chapter_paragraph(pic_book, request=None):
+        # 将子章节展开和父章节同级； [1, 1.1, 1.2, 2, 2.1, 2.2]
         root_chapter_queryset = Chapter.objects.filter(pic_book=pic_book, parent__isnull=True)
         chapter_list = []
         for chapter_obj in root_chapter_queryset:
             # 一层子级目录
             parent_data = ChapterParagraphSerializer(chapter_obj, context={"request": request}).data
+            chapter_list.append(parent_data)
             children_chapter_queryset = chapter_obj.children.all()
             if children_chapter_queryset.exists():
                 child_serializer = ChapterParagraphSerializer(children_chapter_queryset, many=True, context={"request": request})
-                parent_data["children"] = child_serializer.data
-            chapter_list.append(parent_data)
+                # parent_data["children"] =
+                chapter_list.extend(child_serializer.data)
+            # chapter_list.append(parent_data)
         return chapter_list
 
     @action(detail=True)
@@ -276,7 +279,7 @@ class PicBookViewSet(viewsets.ModelViewSet):
     @action(detail=True)
     def preview(self, request, pk=None):
         pic_book = self.get_object()
-        chapter_paragraph_data = self.get_chapter_paragraph(pic_book, request)
+        chapter_paragraph_data = self.get_spread_chapter_paragraph(pic_book, request)
         # 书籍的语音
         voice_queryset = ParagraphVoiceFile.objects.filter(pic_book=pic_book)
         voice_data = ParagraphVoiceFileSerializer(voice_queryset, many=True).data
