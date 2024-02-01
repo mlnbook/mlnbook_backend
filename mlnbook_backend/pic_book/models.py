@@ -368,6 +368,8 @@ class Paragraph(models.Model):
     knowledge_uniq = models.CharField("知识点MD5", max_length=64, null=True, blank=True,
                                       help_text="对知识点前后去空格，转小写，MD5加密")
     illustration = models.ImageField("插图", max_length=500, blank=True, null=True)
+    # sd_prompt = models.CharField("SD正向提示词", max_length=500, blank=True, null=True)
+    # sd_payload = models.JSONField("SD提交json", blank=True, null=True, help_text="参考stable diffusion API")
     seq = models.SmallIntegerField("章节内排序", default=1, db_index=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     ctime = models.DateTimeField(auto_now_add=True)
