@@ -334,7 +334,11 @@ class ChapterViewSet(viewsets.ModelViewSet):
         queryset = chapter.paragraph_set.all()
         typeset_data = get_book_typesets(chapter.pic_book)
         serializer = ParagraphSerializer(queryset, many=True)
-        resp_data = {"typeset_data": typeset_data, "paragraphs": serializer.data}
+        resp_data = {
+            "typeset_data": typeset_data,
+            "paragraphs": serializer.data,
+            "chapter": self.serializer_class(chapter).data
+        }
         return Response(resp_data)
 
     @action(detail=False, methods=['post'])

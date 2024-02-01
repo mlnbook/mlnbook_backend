@@ -174,11 +174,11 @@ class ChapterParagraphSerializer(AuthModelSerializer):
 
 class ChapterMenuSerializer(serializers.ModelSerializer):
     key = serializers.IntegerField(source="id")
-    isLeaf = serializers.BooleanField(source='is_leaf')
+    # isLeaf = serializers.BooleanField(source='is_leaf')
 
     class Meta:
         model = Chapter
-        fields = ["id", "key", "title", "seq", "parent", "isLeaf"]
+        fields = ["id", "key", "title", "seq", "parent"]
 #
 #
 # class ChapterMenuSerializer(serializers.ModelSerializer):
