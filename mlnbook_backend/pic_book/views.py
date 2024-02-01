@@ -253,17 +253,16 @@ class PicBookViewSet(viewsets.ModelViewSet):
     #         chapter_list.append(parent_data)
     #     return Response(chapter_list)
 
-    @action(detail=True)
-    def chapter_paragraph(self, request, pk=None):
-        pic_book = self.get_object()
+    @staticmethod
+    def get_chapter_paragraph(pic_book, request=None):
         root_chapter_queryset = Chapter.objects.filter(pic_book=pic_book, parent__isnull=True)
         chapter_list = []
         for chapter_obj in root_chapter_queryset:
             # 一层子级目录
-            parent_data = ChapterParagraphSerializer(chapter_obj, context={"request": self.request}).data
+            parent_data = ChapterParagraphSerializer(chapter_obj, context={"request": request}).data
             children_chapter_queryset = chapter_obj.children.all()
             if children_chapter_queryset.exists():
-                child_serializer = ChapterParagraphSerializer(children_chapter_queryset, many=True, context={"request": self.request})
+                child_serializer = ChapterParagraphSerializer(children_chapter_queryset, many=True, context={"request": request})
                 parent_data["children"] = child_serializer.data
             chapter_list.append(parent_data)
         return Response(chapter_list)
@@ -277,12 +276,10 @@ class PicBookViewSet(viewsets.ModelViewSet):
     @action(detail=True)
     def preview(self, request, pk=None):
         pic_book = self.get_object()
+        chapter_paragraph_data = self.get_chapter_paragraph(pic_book, request)
         # 书籍的语音
         voice_queryset = ParagraphVoiceFile.objects.filter(pic_book=pic_book)
         voice_data = ParagraphVoiceFileSerializer(voice_queryset, many=True).data
-        # 页面内容
-        book_paragraph_queryset = Paragraph.objects.filter(pic_book=pic_book)
-        paragraph_data = ParagraphSerializer(book_paragraph_queryset, many=True).data
         # 布局模板
         typeset_data = get_book_typesets(pic_book)
 
@@ -290,7 +287,7 @@ class PicBookViewSet(viewsets.ModelViewSet):
         book_preview = {
             "id": pic_book.id,
             "title": pic_book.title,
-            "paragraph_data": paragraph_data,
+            "chapter_paragraphs": chapter_paragraph_data,
             "typeset_data": typeset_data,
             "voice_files": voice_data
         }
@@ -334,11 +331,7 @@ class ChapterViewSet(viewsets.ModelViewSet):
         queryset = chapter.paragraph_set.all()
         typeset_data = get_book_typesets(chapter.pic_book)
         serializer = ParagraphSerializer(queryset, many=True)
-        resp_data = {
-            "typeset_data": typeset_data,
-            "paragraphs": serializer.data,
-            "chapter": self.serializer_class(chapter).data
-        }
+        resp_data = {"typeset_data": typeset_data, "paragraphs": serializer.data}
         return Response(resp_data)
 
     @action(detail=False, methods=['post'])
