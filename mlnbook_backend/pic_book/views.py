@@ -265,7 +265,7 @@ class PicBookViewSet(viewsets.ModelViewSet):
                 child_serializer = ChapterParagraphSerializer(children_chapter_queryset, many=True, context={"request": request})
                 parent_data["children"] = child_serializer.data
             chapter_list.append(parent_data)
-        return Response(chapter_list)
+        return chapter_list
 
     @action(detail=True)
     def chapter_typeset(self, request, pk=None):
