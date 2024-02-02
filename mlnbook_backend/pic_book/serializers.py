@@ -112,7 +112,7 @@ class ParagraphSerializer(AuthModelSerializer):
     class Meta:
         model = Paragraph
         fields = ["id", "pic_book", "chapter", "knowledge", "para_content_uniq",
-                  "para_content", "illustration", "seq", "utime"]
+                  "para_content", "illustration", "small_illustration", "seq", "utime"]
 
 
 class ParagraphBulkCreateUpdateSerializer(serializers.ListSerializer):
