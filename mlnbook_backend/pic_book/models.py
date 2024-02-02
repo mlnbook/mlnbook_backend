@@ -389,8 +389,6 @@ class Paragraph(models.Model):
         self.para_content_uniq = hashlib.md5(self.para_content.strip().lower().encode("utf-8")).hexdigest()
         if self.knowledge:
             self.knowledge_uniq = hashlib.md5(self.knowledge.strip().lower().encode("utf-8")).hexdigest()
-        if self.illustration:
-            image_resize(self.illustration, self.small_illustration)
         super(Paragraph, self).save(*args, **kwargs)
 
     def __str__(self):
