@@ -10,6 +10,7 @@ from taggit.managers import TaggableManager
 from mlnbook_backend.utils.global_choices import LANGUAGE_CODE_CHOICES, LANGUAGE_LEVEL, PHASE_LEVEL, GRADE_LEVEL, \
     AZURE_VOICE_STYLE
 from mlnbook_backend.users.models import Author
+from mlnbook_backend.utils.img_resize import image_resize
 from mlnbook_backend.utils.tools import gen_para_ssml
 
 CHAPTER_TYPE_CHOICES = (
@@ -106,7 +107,7 @@ class PicBook(models.Model):
     tags = TaggableManager(blank=True)
     phase = models.CharField("学段", max_length=20, choices=PHASE_LEVEL, default="preschool")
     grade = models.CharField("年级", max_length=30, choices=GRADE_LEVEL, default="age2-preschool")
-    cover_img = models.ImageField("封面图", max_length=500, blank=True, null=True)
+    cover_img = models.ImageField("封面图", upload_to="pic_books/cover_img/", max_length=500, blank=True, null=True)
     author = models.ManyToManyField(Author)
     voice_template = models.ManyToManyField(VoiceTemplate, through='PicBookVoiceTemplateRelation', blank=True)
     state = models.SmallIntegerField("绘本状态", default=0, choices=BOOK_STATE_CHOICES)
@@ -265,7 +266,8 @@ class KnowledgePoint(models.Model):
     tags = TaggableManager(blank=True)
     phase = models.CharField("默认学段", max_length=20, choices=PHASE_LEVEL, default="preschool")
     grade = models.CharField("默认年级", max_length=30, choices=GRADE_LEVEL, default="1t2-preschool")
-    illustration = models.ImageField("默认插图", max_length=500, blank=True, null=True)
+    illustration = models.ImageField("默认插图", upload_to="pic_books/illustration/", max_length=500, blank=True, null=True)
+    small_illustration = models.ImageField("缩略插图", upload_to="pic_books/small_illustration/", max_length=500, blank=True, null=True)
     # voice_template = models.ForeignKey(VoiceTemplate, on_delete=models.CASCADE, null=True)
     # pic_style = models.CharField("图片风格", max_length=20, default="realistic")
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -278,6 +280,8 @@ class KnowledgePoint(models.Model):
 
     def save(self, *args, **kwargs):
         self.knowledge_uniq = hashlib.md5(self.knowledge.strip().lower().encode("utf-8")).hexdigest()
+        if self.illustration:
+            image_resize(self.illustration, self.small_illustration)
         super(KnowledgePoint, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -367,7 +371,8 @@ class Paragraph(models.Model):
     knowledge = models.CharField("知识点", max_length=200, null=True, blank=True)
     knowledge_uniq = models.CharField("知识点MD5", max_length=64, null=True, blank=True,
                                       help_text="对知识点前后去空格，转小写，MD5加密")
-    illustration = models.ImageField("插图", max_length=500, blank=True, null=True)
+    illustration = models.ImageField("插图", max_length=500, upload_to="pic_books/illustration/", blank=True, null=True)
+    small_illustration = models.ImageField("插图", max_length=500, upload_to="pic_books/small_illustration/", blank=True, null=True)
     # sd_prompt = models.CharField("SD正向提示词", max_length=500, blank=True, null=True)
     # sd_payload = models.JSONField("SD提交json", blank=True, null=True, help_text="参考stable diffusion API")
     seq = models.SmallIntegerField("章节内排序", default=1, db_index=True)
@@ -384,6 +389,8 @@ class Paragraph(models.Model):
         self.para_content_uniq = hashlib.md5(self.para_content.strip().lower().encode("utf-8")).hexdigest()
         if self.knowledge:
             self.knowledge_uniq = hashlib.md5(self.knowledge.strip().lower().encode("utf-8")).hexdigest()
+        if self.illustration:
+            image_resize(self.illustration, self.small_illustration)
         super(Paragraph, self).save(*args, **kwargs)
 
     def __str__(self):
