@@ -19,6 +19,7 @@ from mlnbook_backend.pic_book.serializers import PicBookSerializer, KnowledgePoi
 
 from mlnbook_backend.users.models import Author
 from mlnbook_backend.users.serializers import AuthorSerializer
+from mlnbook_backend.utils.img_resize import image_resize
 from mlnbook_backend.utils.tools import gen_seq_queryset, gen_para_ssml
 
 
@@ -395,6 +396,18 @@ class ParagraphViewSet(viewsets.ModelViewSet):
     queryset = Paragraph.objects.all()
     serializer_class = ParagraphSerializer
     filterset_fields = ['pic_book', 'chapter']
+
+    def create(self, request, *args, **kwargs):
+        request_data = request.data.copy()
+        illustration = request.FILES.get("illustration")
+        if illustration:
+            small_file = image_resize(illustration)
+            request_data["small_illustration"] = small_file
+        serializer = self.get_serializer(data=request_data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     @action(detail=False, methods=["post"])
     def batch_create(self, request, *args, **kwargs):
