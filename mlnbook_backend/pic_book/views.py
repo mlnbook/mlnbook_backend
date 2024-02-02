@@ -394,7 +394,7 @@ class ChapterViewSet(viewsets.ModelViewSet):
 class ParagraphViewSet(viewsets.ModelViewSet):
     queryset = Paragraph.objects.all()
     serializer_class = ParagraphSerializer
-    filterset_fields = ['pic_book', 'chapter', 'book_page']
+    filterset_fields = ['pic_book', 'chapter']
 
     @action(detail=False, methods=["post"])
     def batch_create(self, request, *args, **kwargs):
