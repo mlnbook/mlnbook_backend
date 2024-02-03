@@ -189,7 +189,7 @@ class ChapterMenuSerializer(serializers.ModelSerializer):
 #         fields = ["key", "title", "seq", "parent"]
 
 
-class TypesetSerializer(serializers.ModelSerializer):
+class TypesetSerializer(AuthModelSerializer):
     # layout_cfg = serializers.JSONField(source="get_layout_cfg")
 
     class Meta:
@@ -197,7 +197,7 @@ class TypesetSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'c_type', 'pic_book', 'setting', 'seq', 'is_default']
 
 
-class ChapterTypesetSerializer(serializers.ModelSerializer):
+class ChapterTypesetSerializer(AuthModelSerializer):
 
     class Meta:
         model = ChapterTypeset

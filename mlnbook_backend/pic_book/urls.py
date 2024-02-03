@@ -4,7 +4,7 @@ from rest_framework import routers
 
 from mlnbook_backend.pic_book.views import PicBookViewSet, KnowledgePointViewSet, LayoutTemplateViewSet, \
     ParagraphViewSet, BookSeriesViewSet, ChapterViewSet, VoiceTemplateViewSet, \
-    AuthorViewSet, ParagraphVoiceFileViewSet, PicBookVoiceViewSet
+    AuthorViewSet, ParagraphVoiceFileViewSet, PicBookVoiceViewSet, TypesetViewSet, ChapterTypesetViewSet
 
 router = routers.DefaultRouter()
 router.register('book', PicBookViewSet)
@@ -17,6 +17,8 @@ router.register('voice_template', VoiceTemplateViewSet)
 router.register('book_voice', PicBookVoiceViewSet)
 router.register('paragraph_voice', ParagraphVoiceFileViewSet)
 router.register('author', AuthorViewSet)
+router.register('typeset', TypesetViewSet)
+router.register('chapter_typeset', ChapterTypesetViewSet)
 
 # router.register('pic_upload', IllustrationFileUploadView)
 # urlpatterns = [
