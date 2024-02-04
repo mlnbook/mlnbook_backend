@@ -5,7 +5,7 @@ from pathlib import Path
 from PIL import Image
 from io import BytesIO
 
-from django.core.files.uploadedfile import InMemoryUploadedFile
+# from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.files.base import ContentFile
 
 image_types = {
@@ -18,25 +18,18 @@ image_types = {
 }
 
 
-def image_resize(image, width=80, height=80):
-    # Open the image using Pillow
-    img = Image.open(image).copy()
-    # check if either the width or height is greater than the max
-    if img.width > width or img.height > height:
-        output_size = (width, height)
-        # Create a new resized “thumbnail” version of the image with Pillow
-        img.thumbnail(output_size)
-        # Find the file name of the image
-        img_filename = Path("small_" + image.name).name
-        # Spilt the filename on “.” to get the file extension only
-        img_suffix = Path(image.name).name.split(".")[-1]
-        # Use the file extension to determine the file type from the image_types dictionary
-        img_format = image_types[img_suffix]
-        # Save the resized image into the buffer, noting the correct file type
-        buffer = BytesIO()
-        img.save(buffer, format=img_format)
-        # Wrap the buffer in File object
-        file_object = InMemoryUploadedFile(buffer, 'small_illustration', img_filename,
-                                           "image/%s" % img_suffix, sys.getsizeof(buffer), None)
-        # Save the new resized file as usual, which will save to S3 using django-storages
-        return file_object
+def image_resize(ori_image, size=(80,80)):
+    # 打开图像
+    img = Image.open(ori_image).copy()
+    # 调整图像大小
+    img.thumbnail(size)
+    # 保存到临时内存中
+    temp = BytesIO()
+    img_suffix = Path(ori_image.name).name.split(".")[-1]
+    img_format = image_types[img_suffix]
+    img.save(temp, format=img_format)
+    # 创建新的 ImageField 类型的内容
+    temp.seek(0)  # Seek to the beginning of the file after saving
+    image_name = ori_image.name  # Original filename
+    new_image = ContentFile(temp.read(), name='small_' + image_name)
+    return new_image
