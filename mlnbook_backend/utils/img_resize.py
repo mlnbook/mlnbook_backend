@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 import os
-from django.core.files.base import ContentFile
+import sys
 from pathlib import Path
 from PIL import Image
 from io import BytesIO
+
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.core.files.base import ContentFile
 
 image_types = {
     "jpg": "JPEG",
@@ -17,7 +20,7 @@ image_types = {
 
 def image_resize(image, width=80, height=80):
     # Open the image using Pillow
-    img = Image.open(image)
+    img = Image.open(image).copy()
     # check if either the width or height is greater than the max
     if img.width > width or img.height > height:
         output_size = (width, height)
@@ -33,6 +36,7 @@ def image_resize(image, width=80, height=80):
         buffer = BytesIO()
         img.save(buffer, format=img_format)
         # Wrap the buffer in File object
-        file_object = ContentFile(img.read(), name=img_filename)
+        file_object = InMemoryUploadedFile(buffer, 'small_illustration', img_filename,
+                                           "image/%s" % img_suffix, sys.getsizeof(buffer), None)
         # Save the new resized file as usual, which will save to S3 using django-storages
         return file_object
