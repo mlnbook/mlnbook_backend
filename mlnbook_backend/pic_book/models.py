@@ -1,5 +1,6 @@
 # coding=utf-8
 import hashlib
+
 from django.db import models
 from django.conf import settings
 from django.db.models.signals import post_save
@@ -280,8 +281,6 @@ class KnowledgePoint(models.Model):
 
     def save(self, *args, **kwargs):
         self.knowledge_uniq = hashlib.md5(self.knowledge.strip().lower().encode("utf-8")).hexdigest()
-        if self.illustration:
-            image_resize(self.illustration, self.small_illustration)
         super(KnowledgePoint, self).save(*args, **kwargs)
 
     def __str__(self):
@@ -452,6 +451,10 @@ def create_knowledge(sender, instance, created, **kwargs):
                                      phase=instance.pic_book.phase,
                                      grade=instance.pic_book.grade,
                                      user=instance.user)
+
+            if instance.illustration:
+                small_file = image_resize(instance.illustration)
+                new_obj.small_illustration = small_file
             new_obj.save()
 
 
