@@ -456,6 +456,13 @@ def create_knowledge(sender, instance, created, **kwargs):
                 small_file = image_resize(instance.illustration)
                 new_obj.small_illustration = small_file
             new_obj.save()
+    else:
+        knowledge_obj = KnowledgePoint.objects.get(knowledge_uniq=instance.knowledge_uniq)
+        if not knowledge_obj.illustration:
+            small_file = image_resize(instance.illustration)
+            knowledge_obj.illustration = instance.illustration
+            knowledge_obj.small_illustration = small_file
+            knowledge_obj.save()
 
 
 @receiver(post_save, sender=Typeset)
