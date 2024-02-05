@@ -410,6 +410,21 @@ class ParagraphViewSet(viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        request_data = self.request.data.copy()
+        illustration = self.request.FILES.get("illustration")
+        if illustration:
+            small_file = image_resize(illustration)
+            request_data["small_illustration"] = small_file
+        serializer = self.get_serializer(instance, data=request_data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        if getattr(instance, '_prefetched_objects_cache', None):
+            instance._prefetched_objects_cache = {}
+        return Response(serializer.data)
+
     @action(detail=False, methods=["post"])
     def batch_create(self, request, *args, **kwargs):
         serializer = ParagraphBulkSerializer(data=request.data, many=True)
