@@ -90,7 +90,7 @@ class ChapterSerializer(AuthModelSerializer):
 
     class Meta:
         model = Chapter
-        fields = ["id", "parent", "title", "pic_book", "text_template", "seq", "utime"]
+        fields = ["id", "parent", "title", "pic_book", "text_template", "prompt_template", "seq", "utime"]
 
 
 # class BookPageSerializer(AuthModelSerializer):
@@ -111,7 +111,7 @@ class ParagraphSerializer(AuthModelSerializer):
 
     class Meta:
         model = Paragraph
-        fields = ["id", "pic_book", "chapter", "knowledge", "para_content_uniq",
+        fields = ["id", "pic_book", "chapter", "knowledge", "para_content_uniq", "aigc_prompt",
                   "para_content", "illustration", "small_illustration", "seq", "utime"]
 
 
