@@ -218,6 +218,7 @@ class Chapter(models.Model):
     pic_book = models.ForeignKey(PicBook, on_delete=models.CASCADE)
     title = models.CharField("标题", max_length=200)
     text_template = models.TextField("文案模板", max_length=1000, blank=True)
+    prompt_template = models.TextField("提示词模板", max_length=500, blank=True, null=True)
     seq = models.SmallIntegerField("顺序", default=1, db_index=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     set_group = models.BooleanField("设为分组", default=False)
