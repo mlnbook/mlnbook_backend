@@ -343,6 +343,14 @@ class ChapterViewSet(viewsets.ModelViewSet):
         }
         return Response(resp_data)
 
+    @action(detail=True, methods=["post"])
+    def batch_aigc(self, request, pk=None):
+        chapter = self.get_object()
+        resp_data = {
+            "detail": "提交成功，请稍候刷新界面查看生成结果"
+        }
+        return Response(resp_data)
+
     @action(detail=False, methods=['post'])
     def set_seq(self):
         """传入顺序id list;
