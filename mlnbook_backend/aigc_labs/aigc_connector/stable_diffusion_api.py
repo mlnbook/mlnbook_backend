@@ -13,25 +13,28 @@ def save_encoded_image(b64_image: str, output_path: str):
 
 def call_txt2img_api(payload, override_settings=None):
     # prompt, negative_prompt, sampler_index, seed, steps = 20, width = 1024, height = 1024
-    txt2img_url = r'http://127.0.0.1:7861/sdapi/v1/txt2img'
-    data = {'prompt': payload["prompt"],
-            'negative_prompt': payload["negative_prompt"],
-            'sampler_index': payload["prompt"],  # 'DPM++ SDE'
-            'seed': payload["seed"],
-            'steps': payload.get("steps", 20),
-            'width': payload.get("width", 1024),
-            'height': payload.get("width", 1024),
-            'cfg_scale': payload.get("cfg_scale", 8)}
+    if override_settings is None:
+        override_settings = {}
+    txt2img_url = 'http://127.0.0.1:7860/sdapi/v1/txt2img'
+    reqeust_data = {'prompt': payload["prompt"],
+                    'negative_prompt': payload.get("negative_prompt", ""),
+                    'sampler_index': payload.get("sampler_index", "DPM++ 2M Karras"),  # 'DPM++ SDE'
+                    'seed': payload.get("seed", -1),
+                    'steps': payload.get("steps", 20),
+                    'width': payload.get("width", 1024),
+                    'height': payload.get("width", 1024),
+                    'cfg_scale': payload.get("cfg_scale", 7)}
 
     option_settings = {
-        "filter_nsfw": override_settings.get("filter_nsfw", True),
-        'sd_model_checkpoint': override_settings.get('sd_model_checkpoint', 'sd_xl_base_1.0'),
+        'sd_model_checkpoint': override_settings.get('sd_model_checkpoint', 'juggernautXL_v7Rundiffusion.safetensors'),
     }
     if override_settings:
         option_settings.update(override_settings)
-    payload["override_settings"] = option_settings
-
-    response = requests.post(txt2img_url, data=json.dumps(data))
+    reqeust_data["override_settings"] = option_settings
+    response = requests.post(txt2img_url, data=json.dumps(reqeust_data))
+    if response.status_code > 300:
+        print(response)
+        return
     # save_image_path = r'tmp.png'
     # save_encoded_image(response.json()['images'][0], save_image_path)
     # b64_image = response.json()['images'][0]
@@ -39,4 +42,3 @@ def call_txt2img_api(payload, override_settings=None):
     image = Image.open(io.BytesIO(base64.b64decode(response.json()['images'][0])))
     # image.save('output.png')
     return image
-
