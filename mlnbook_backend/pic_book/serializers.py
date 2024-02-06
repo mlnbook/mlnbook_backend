@@ -158,7 +158,7 @@ class ChapterParagraphSerializer(AuthModelSerializer):
 
     class Meta:
         model = Chapter
-        fields = ["id", "title", "text_template", "seq", "utime", "paragraph_set"]
+        fields = ["id", "title", "text_template", "prompt_template", "seq", "utime", "paragraph_set"]
 
 
 # class PageMenuSerializer(serializers.ModelSerializer):
