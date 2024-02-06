@@ -18,9 +18,12 @@ image_types = {
 }
 
 
-def image_resize(ori_image, size=(80,80)):
+def image_resize(ori_image, size=(80, 80), opened=False):
     # 打开图像
-    img = Image.open(ori_image).copy()
+    if not opened:
+        img = Image.open(ori_image).copy()
+    else:
+        img = ori_image.copy()
     # 调整图像大小
     img.thumbnail(size)
     # 保存到临时内存中
