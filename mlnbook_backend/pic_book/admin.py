@@ -42,9 +42,10 @@ class KnowledgePointAdmin(admin.ModelAdmin):
 
 @admin.register(Paragraph)
 class ParagraphAdmin(admin.ModelAdmin):
-    list_display = ["id", "para_content_uniq", "knowledge", "para_content", "pic_book", "chapter", "illustration",
+    list_display = ["id", "para_content_uniq", "knowledge", "para_content", "pic_book", "chapter", "aigc_prompt",
                     "seq", "user", "ctime"]
     search_fields = ["para_content"]
+    list_editable = ["aigc_prompt"]
     list_filter = ["pic_book"]
 
 
