@@ -4,10 +4,9 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from mlnbook_backend.pic_book.process import get_book_typesets
-from mlnbook_backend.pic_book.tasks import paragraph_voice_file_task
+from mlnbook_backend.pic_book.tasks import paragraph_voice_file_task, paragraph_aigc_image_task
 
 from mlnbook_backend.pic_book.models import PicBook, KnowledgePoint, Chapter, Paragraph, \
     BookSeries, LayoutTemplate, VoiceTemplate, ParagraphVoiceFile, PicBookVoiceTemplateRelation, \
@@ -346,6 +345,7 @@ class ChapterViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["post"])
     def batch_aigc(self, request, pk=None):
         chapter = self.get_object()
+        paragraph_aigc_image_task.delay(chapter.id)
         resp_data = {
             "detail": "提交成功，请稍候刷新界面查看生成结果"
         }
