@@ -458,7 +458,7 @@ def create_knowledge(sender, instance, created, **kwargs):
             new_obj.save()
     else:
         knowledge_obj = KnowledgePoint.objects.get(knowledge_uniq=instance.knowledge_uniq)
-        if not knowledge_obj.illustration:
+        if not knowledge_obj.illustration and instance.illustration:
             small_file = image_resize(instance.illustration)
             knowledge_obj.illustration = instance.illustration
             knowledge_obj.small_illustration = small_file
